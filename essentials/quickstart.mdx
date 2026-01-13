@@ -4,6 +4,11 @@ icon: "rocket"
 description: "Coloque sua API profissional de WhatsApp no ar em menos de 5 minutos com a **ZapUnlocked-API**."
 ---
 
+import { ApiKeyGenerator } from '/snippets/ApiKeyGenerator.mdx';
+import { InternalSecretGenerator } from '/snippets/InternalSecretGenerator.mdx';
+import { UrlInput } from '/snippets/UrlInput.mdx';
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
 <ApiKeySync />
 
 Siga este guia para hospedar a **ZapUnlocked-API** na Railway. Este processo garante que sua API fique online 24/7.
@@ -14,10 +19,10 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
 
 <Steps>
   <Step title="Fork do Repositório" icon="code-fork">
-    Comece fazendo um fork do [Repositório Oficial](https://github.com/zKauaFerreira/ZapUnlocked-API/fork) para a sua conta do GitHub.
+    Comece fazendo um fork do [repositório oficial](https://github.com/zKauaFerreira/ZapUnlocked-API) para a sua conta do GitHub.
   </Step>
   <Step title="Criar Projeto na Railway" icon="plus">
-    1. Faça login no seu [Painel da Railway](https://railway.app/).
+    1. Faça login no seu [painel da Railway](https://railway.app/).
     2. Clique em **New Project** e selecione **Deploy from GitHub repo**.
     3. Escolha o seu repositório forkado `ZapUnlocked-API`.
   </Step>
@@ -28,14 +33,10 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
     <thead>
     <tr>
     <th width="30%">
-    Variável
+    Variável</th>
 
-    </th>
-
-    <th>
-    Valor / Descrição
-
-    </th>
+     <th>
+    Valor / Descrição</th>
 
     </tr>
 
@@ -45,9 +46,7 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
     <tr>
     <td>
     <code>
-    API_KEY
-
-    </code>
+    API_KEY</code>
 
     </td>
 
@@ -61,9 +60,7 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
     <tr>
     <td>
     <code>
-    INTERNAL_SECRET
-
-    </code>
+    INTERNAL_SECRET</code>
 
     </td>
 
@@ -77,17 +74,13 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
     <tr>
     <td>
     <code>
-    PORT
-
-    </code>
+    PORT</code>
 
     </td>
 
-    <td>
+     <td>
     <code>
-    3000
-
-    </code>
+    3000</code>
 
     </td>
 
@@ -96,17 +89,13 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
     <tr>
     <td>
     <code>
-    AUTH_DIR
-
-    </code>
+    AUTH_DIR</code>
 
     </td>
 
-    <td>
+     <td>
     <code>
-    /data/auth_info
-
-    </code>
+    /data/auth_info</code>
 
     </td>
 
@@ -128,7 +117,6 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
     1. Vá na aba **Volumes** na Railway.
     2. Clique em **\+ New Volume**.
     3. Defina o **Mount Path** como `/data/auth_info`.
-    4. Defina o **Name** como `whatsapp-auth`.
   </Step>
   <Step title="Gerar Domínio Público" icon="globe">
     Para que sua API seja acessível pela internet:
@@ -148,31 +136,17 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
 
 Após o deploy terminar com sucesso, você precisa conectar sua conta do WhatsApp.
 
-1. Acesse no seu navegador a URL de login:\
-   `https://seu-projeto.up.railway.app/qr?API_KEY=SUA_SENHA_SECRETA`
+1. Acesse no seu navegador a URL de login:
+
+```bash URL de Autenticação
+https://seu-projeto.up.railway.app/qr?API_KEY=SUA_SENHA_SECRETA
+```
+
 2. Escaneie o QR Code com seu celular.
 
 <Check>
   Uma vez conectado, a página atualizará sozinha para mostrar o status "Conectado".
 </Check>
-
-## <Icon icon="face-thinking" iconType="sharp-regular" color="#9d4fe6" size={22} /> Solução de Problemas
-
-<Accordion title="Erro: No response received / Network Error">
-  Se você encontrar o erro **"no response received"** ao testar a API através desta documentação ("Try it"), isso geralmente ocorre devido a bloqueios **CORS** (Cross-Origin Resource Sharing).
-
-  Como estamos usando sua URL personalizada, o navegador faz a requisição diretamente para o seu servidor. Para que isso funcione, seu servidor na Railway precisa permitir requisições vindas deste site de documentação.
-
-  **Como resolver:** Certifique-se de que sua API retorna os seguintes headers em todas as respostas (incluindo erros e preflight `OPTIONS`):
-
-  ```http
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Methods: GET, POST, OPTIONS
-  Access-Control-Allow-Headers: Content-Type, x-api-key
-  ```
-
-  _`Se estiver usando Node.js/Express, use o pacote cors para habilitar isso globalmente.`_
-</Accordion>
 
 ## <Icon icon="vial" iconType="sharp-regular" color="#9d4fe6" size={22} /> Testando sua API
 
@@ -201,10 +175,6 @@ axios.post('https://seu-projeto.up.railway.app/send', {
   headers: { 'x-api-key': 'SUA_SENHA_SECRETA' }
 })
 .then(res => console.log(res.data));
-```
-
-
-```filename
 ```
 
 </CodeGroup>
