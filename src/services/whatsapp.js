@@ -132,6 +132,8 @@ async function sendImageMessage(jid, imagePath, caption) {
   });
 }
 
+const { getAudioDuration, generateWaveform } = require("baileys-original");
+
 /**
  * Envia um áudio via WhatsApp
  * @param {string} jid - JID do destinatário
@@ -145,10 +147,25 @@ async function sendAudioMessage(jid, audioPath, isPtt = false) {
     throw new Error("WhatsApp não está conectado");
   }
 
+  const buffer = fs.readFileSync(audioPath);
+
+  // Calcula duração e waveform para compatibilidade com iPhone
+  let seconds = undefined;
+  let waveform = undefined;
+
+  try {
+    seconds = await getAudioDuration(buffer);
+    waveform = await generateWaveform(buffer);
+  } catch (err) {
+    logger.log(`⚠️ Falha ao gerar metadados de áudio: ${err.message}`);
+  }
+
   return await sock.sendMessage(jid, {
-    audio: fs.readFileSync(audioPath),
+    audio: buffer,
     ptt: isPtt,
-    mimetype: "audio/ogg; codecs=opus"
+    mimetype: "audio/ogg; codecs=opus",
+    seconds: seconds,
+    waveform: waveform
   });
 }
 

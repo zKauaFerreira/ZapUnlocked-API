@@ -10,6 +10,7 @@
   "dependencies": {
     "@hapi/boom": "^10.0.1",
     "@itsukichan/baileys": "^7.3.2",
+    "baileys-original": "npm:@whiskeysockets/baileys@^6.7.9",
     "axios": "^1.6.0",
     "express": "^4.19.2",
     "ffmpeg-static": "^5.2.0",
