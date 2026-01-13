@@ -21,8 +21,7 @@ Envia uma imagem a partir de uma URL pública. A imagem é baixada temporariamen
 {
   "phone": "555185867410",
   "image_url": "https://exemplo.com/imagem.jpg",
-  "caption": "Legenda opcional",
-  "viewOnce": false
+  "caption": "Legenda opcional"
 }
 ```
 

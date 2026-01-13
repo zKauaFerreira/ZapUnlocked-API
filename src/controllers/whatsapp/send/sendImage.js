@@ -14,8 +14,7 @@ async function sendImage(req, res) {
         return res.status(503).json({ error: "WhatsApp ainda não conectado" });
     }
 
-    const { phone, image_url, caption, viewOnce } = req.body;
-    const isViewOnce = String(viewOnce) === "true";
+    const { phone, image_url, caption } = req.body;
 
     if (!phone || !image_url) {
         return res.status(400).json({ error: "phone e image_url são obrigatórios" });
@@ -31,8 +30,8 @@ async function sendImage(req, res) {
         filePath = await imageService.downloadImage(image_url);
 
         // 2. Envia pro WhatsApp
-        logger.log(`📤 Enviando imagem para ${phone} (viewOnce: ${isViewOnce})...`);
-        await whatsappService.sendImageMessage(jid, filePath, caption || "", isViewOnce);
+        logger.log(`📤 Enviando imagem para ${phone}...`);
+        await whatsappService.sendImageMessage(jid, filePath, caption || "");
 
         res.json({ success: true, message: "Imagem enviada com sucesso ✅" });
     } catch (err) {

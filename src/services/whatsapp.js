@@ -118,19 +118,17 @@ async function sendButtonMessage(jid, message, buttonText, buttonValue) {
  * @param {string} jid - JID do destinatário
  * @param {string} imagePath - Caminho local da imagem
  * @param {string} caption - Legenda da imagem
- * @param {boolean} viewOnce - Se é visualização única
  * @returns {Promise<Object>}
  */
-async function sendImageMessage(jid, imagePath, caption, viewOnce = false) {
-  logger.log(`📡 Chamando Baileys sendMessage para ${jid} (viewOnce: ${viewOnce})`);
+async function sendImageMessage(jid, imagePath, caption) {
+  logger.log(`📡 Chamando Baileys sendMessage para ${jid}`);
   if (!sock || !isReady) {
     throw new Error("WhatsApp não está conectado");
   }
 
   return await sock.sendMessage(jid, {
     image: fs.readFileSync(imagePath),
-    caption: caption,
-    viewOnce: viewOnce
+    caption: caption
   });
 }
 
