@@ -128,9 +128,8 @@ async function sendImageMessage(jid, imagePath, caption, viewOnce = false) {
   }
 
   return await sock.sendMessage(jid, {
-    image: { url: imagePath },
+    image: fs.readFileSync(imagePath),
     caption: caption,
-    mimetype: "image/jpeg",
     viewOnce: viewOnce
   });
 }
