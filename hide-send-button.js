@@ -300,6 +300,7 @@
     translateUI();
     toggleBodyScroll();
     cleanUrlDisplay();
+    hideCopyButtonForRailwayUrl();
 
     // Run functions with delays to catch dynamic content
     setTimeout(() => {
