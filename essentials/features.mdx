@@ -1,0 +1,70 @@
+---
+title: "Funcionalidades e Roadmap"
+icon: "rocket"
+description: "Explore o universo de possibilidades da **ZapUnlocked-API**."
+---
+
+A **ZapUnlocked-API** é uma engine de automação robusta construída sobre o motor Baileys, projetada para ser estável e poderosa.
+
+<Info>
+  **Eficiência de Recursos**: O sistema é otimizado para rodar com **500MB de RAM**, utilizando uma estratégia de alocação inteligente detalhada na nossa página de [Gestão de Recursos](/api-reference/resource-management).
+</Info>
+
+---
+
+## <Icon icon="check-double" /> Funcionalidades Implementadas
+
+Ferramentas prontas para automação:
+
+- **Mensageria**: Envio de Texto, Citações e Reações.
+- **Mídia**: Imagens, Vídeos (GIF/PTV), Áudios (PTT nativo) e Documentos.
+- **Fila de Mídias**: Gerenciamento de queue para evitar estouro de memória em envios simultâneos.
+- **Botões Interativos**: Sistema stateless com ID criptografado e validade de 24h.
+- **Webhooks**: Callbacks em tempo real com suporte a placeholders dinâmicos.
+
+---
+
+## <Icon icon="gears" /> Capacidades do Motor (Baileys)
+
+O motor suporta diversas funções que podem ser expostas na API conforme a demanda:
+
+### **Conexão e Sincronização**
+- **Pairing Code**: Conexão via código numérico (alternativa ao QR Code).
+- **Sincronização de Histórico**: Recepção de mensagens antigas no momento do login.
+- **Auto-Recuperação**: Reconexão automática após quedas de sinal.
+
+### **Gerenciamento de Mensagens**
+- **Edição e Exclusão**: Alterar ou deletar mensagens para todos no chat.
+- **Localização**: Envio de localização fixa ou em tempo real (Live Location).
+- **Contatos**: Compartilhamento de vCards individuais ou múltiplos.
+- **Enquetes**: Envio de enquetes e recebimento de votos.
+
+### **Grupos e Comunidades**
+- **Moderação**: Criar grupos, gerenciar membros e permissões de administradores.
+- **Metadata**: Alterar nome, descrição e foto do grupo.
+- **Convites**: Gerenciar links e aprovação de novos membros.
+
+### **Privacidade e Perfil**
+- **Privacidade**: Configurar visibilidade de Visto por Último, Foto e Status.
+- **Perfil**: Alterar nome e frase de status programaticamente.
+
+---
+
+## <Icon icon="bolt" /> Roadmap e Futuro
+
+### **1. Inteligência Artificial**
+Transforme o bot em um assistente inteligente com integrações nativas:
+- **Groq e Gemini**: Respostas geradas por IA com baixo consumo de recursos.
+- **Contexto de Conversa**: Memória para que o bot entenda o histórico do chat.
+
+### **2. Segurança Avançada**
+- **Múltiplos Métodos de Autenticação**: Opções extras de segurança além da x-api-key atual.
+- **Whitelist de IP**: Restrição de acesso por origem.
+
+### **3. Dashboard de Controle**
+Interface visual para gestão de instâncias, logs e métricas de desempenho.
+
+---
+
+### <Icon icon="code-fork" /> Sugestões
+A ZapUnlocked-API é open-source. Se você precisa de uma função do Baileys ainda não implementada, abra uma [Issue no GitHub](https://github.com/zKauaFerreira/ZapUnlocked-API/issues).

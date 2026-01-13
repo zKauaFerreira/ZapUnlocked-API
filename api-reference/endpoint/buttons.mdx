@@ -1,0 +1,79 @@
+---
+title: "Botões Interativos"
+icon: "square-check"
+api: "POST https://{railway_domain}/send_wbuttons"
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma abreviação para **Send With Buttons** (*Enviar com Botão*). Este sistema é **totalmente stateless**: as instruções do que acontece no clique estão embutidas no ID do botão de forma criptografada.
+
+<Note>
+  **Validade do Botão**: Por segurança e para evitar tokens excessivamente longos, os botões gerados têm uma validade de **24 horas**. Após esse período, o clique não disparará mais o webhook (isso será alterado no futuro).
+</Note>
+
+### Corpo da Requisição (Body)
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+<ParamField body="phone" type="string" required>
+  Número do destinatário com código do país (ex: `5511999999999`).
+</ParamField>
+
+<ParamField body="message" type="string" required>
+  Texto principal da mensagem que aparecerá acima do botão.
+</ParamField>
+
+<ParamField body="button_text" type="string" required>
+  O texto dentro do botão.
+</ParamField>
+
+<ParamField body="reaction" type="string">
+  Emoji opcional para reagir automaticamente à mensagem quando o usuário clicar no botão.
+</ParamField>
+
+<ParamField body="webhook" type="object">
+  Configuração do destino dos dados quando houver o clique.
+  <Expandable title="Configuração do Webhook">
+    <ParamField body="url" type="string" required>
+      URL que receberá o POST.
+    </ParamField>
+    <ParamField body="method" type="string" default="POST">
+      Método HTTP.
+    </ParamField>
+    <ParamField body="headers" type="object">
+      Headers customizados para a requisição (ex: Autenticação).
+    </ParamField>
+    <ParamField body="body" type="object">
+      JSON customizado que você quer receber. Aceita placeholders como `{{from}}` e `{{text}}`.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Resposta
+
+<ResponseExample>
+```json 200 Sucesso
+{
+  "success": true,
+  "message": "Mensagem enviada ✅"
+}
+```
+
+```json 401 Erro
+{
+  "error": "Unauthorized",
+  "message": "API Key inválida ou ausente"
+}
+```
+</ResponseExample>
+
+

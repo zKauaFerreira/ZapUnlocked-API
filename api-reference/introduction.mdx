@@ -1,0 +1,98 @@
+---
+title: "Introdução à API"
+icon: "code"
+description: "Entenda a estrutura da **ZapUnlocked-API** e os métodos de autenticação."
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+import { UrlInput } from '/snippets/UrlInput.mdx';
+
+<ApiKeySync />
+
+## <Icon icon="eye" /> Visão Geral
+
+A **ZapUnlocked-API** é uma solução REST de alta performance projetada para transformar o WhatsApp em uma poderosa ferramenta de automação. Ela utiliza JSON no corpo das requisições e retorna códigos de status HTTP padrão para indicar o sucesso ou falha das operações.
+
+### <Icon icon="microchip" /> Arquitetura e Motor
+
+Diferente de outras soluções que exigem infraestruturas pesadas, a **ZapUnlocked-API** é construída sobre o **Baileys**, a biblioteca de WhatsApp mais estável e rica em recursos disponível. 
+
+- **Stateless (Sem Estado)**: A API foi desenhada para ser o mais leve possível. Interações como botões não exigem um banco de dados local para rastrear o que o usuário clicou; toda a informação necessária é criptografada e enviada no próprio ID do botão.
+- **PTT Nativo**: Conversão automática de áudio para o formato OGG Opus, garantindo que mensagens de voz apareçam corretamente no iPhone e Android.
+
+## <Icon icon="route" /> Fluxo de Trabalho
+
+Para colocar seu bot no ar, siga estes três passos simples:
+
+<Steps>
+  <Step title="Deploy" icon="rocket">
+    Coloque a API no ar (recomendamos a Railway) e configure sua `API_KEY`.
+  </Step>
+  <Step title="Autenticação" icon="qrcode">
+    Acesse `/qr` informando sua chave e escaneie o código com seu WhatsApp.
+  </Step>
+  <Step title="Automação" icon="bolt">
+    Comece a enviar mensagens e receber webhooks em tempo real.
+  </Step>
+</Steps>
+
+## <Icon icon="link" /> URL Base
+
+Defina a URL do seu projeto abaixo para que todos os exemplos de código sejam atualizados automaticamente:
+
+<UrlInput />
+
+Se você estiver hospedando na Railway, sua URL base será semelhante a esta:
+
+```bash
+https://seu-projeto.up.railway.app
+```
+
+## <Icon icon="shield-check" /> Autenticação
+
+Todos os endpoints da API (exceto a rota de status raiz e o acesso à página do QR Code) exigem uma chave de API. Você deve fornecer sua chave secreta em cada requisição usando um dos seguintes métodos:
+
+<AccordionGroup>
+  <Accordion title="Autenticação por Header (Recomendado)" icon="key">
+    Inclua o header `x-api-key` em suas requisições HTTP.
+    ```bash
+    x-api-key: sua_senha_secreta_aqui
+    ```
+  </Accordion>
+  <Accordion title="Autenticação por Query Parameter" icon="link">
+    Inclua o parâmetro `API_KEY` na string de consulta (URL).
+    ```bash
+    ?API_KEY=sua_senha_secreta_aqui
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  Nunca compartilhe sua chave de API. Ela fornece acesso total à conta do WhatsApp conectada.
+</Warning>
+
+## <Icon icon="file-code" /> Formato de Resposta
+
+Todas as respostas da API são retornadas em formato JSON:
+
+```json
+{
+  "success": true,
+  "message": "Mensagem enviada ✅"
+}
+```
+
+<ResponseExample>
+```json 200 Sucesso
+{
+  "success": true,
+  "message": "Mensagem enviada ✅"
+}
+```
+
+```json 401 Erro
+{
+  "error": "Unauthorized"
+}
+```
+</ResponseExample>

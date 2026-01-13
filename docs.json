@@ -1,0 +1,108 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "ZapUnlocked-API",
+  "colors": {
+    "primary": "#7c1bc2",
+    "light": "#a855f7",
+    "dark": "#7c1bc2"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentação",
+        "groups": [
+          {
+            "group": "Início",
+            "pages": [
+              "index",
+              "essentials/features",
+              "api-reference/resource-management",
+              "essentials/mission"
+            ]
+          },
+          {
+            "group": "Hospedagem",
+            "pages": [
+              "essentials/quickstart"
+            ]
+          },
+          {
+            "group": "Referência da API",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "Endpoint Mensagens",
+            "pages": [
+              "api-reference/endpoint/create",
+              "api-reference/endpoint/buttons"
+            ]
+          },
+          {
+            "group": "Endpoint Mídias",
+            "pages": [
+              "api-reference/endpoint/image",
+              "api-reference/endpoint/audio",
+              "api-reference/endpoint/video",
+              "api-reference/endpoint/document"
+            ]
+          },
+          {
+            "group": "Endpoint Auth e Sessão",
+            "pages": [
+              "api-reference/endpoint/get",
+              "api-reference/endpoint/qr",
+              "api-reference/endpoint/qr-image",
+              "api-reference/endpoint/delete"
+            ]
+          },
+          {
+            "group": "Eventos e Webhooks",
+            "pages": [
+              "api-reference/endpoint/webhook"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/zKauaFerreira/ZapUnlocked-API",
+          "icon": "github"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Suporte",
+        "href": "https://github.com/zKauaFerreira/ZapUnlocked-API/issues"
+      }
+    ]
+  },
+  "api": {
+    "auth": {
+      "method": "key",
+      "name": "x-api-key"
+    },
+    "playground": {
+      "mode": "show",
+      "proxy": false
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/zKauaFerreira/ZapUnlocked-API"
+    }
+  }
+}

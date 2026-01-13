@@ -1,0 +1,43 @@
+---
+title: "Status da Sessão"
+icon: "signal"
+api: "GET https://{railway_domain}/"
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Este endpoint permite verificar se o servidor da API está rodando e se há uma conta do WhatsApp conectada no momento. No **ZapUnlocked-API**, a rota raiz (`/`) retorna o status detalhado sem necessidade de autenticação.
+
+### Parâmetros
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+### Resposta
+
+<ResponseField name="status" type="string">
+  Indica se o servidor está `online`.
+</ResponseField>
+
+<ResponseField name="whatsapp" type="string">
+  Indica o estado da conexão: `connected`, `connecting` ou `disconnected`.
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  Data e hora atual do servidor.
+</ResponseField>
+
+
+
+<ResponseExample>
+```json 200 Sucesso
+{
+  "status": "online",
+  "whatsapp": "connected",
+  "timestamp": "2026-01-13T01:47:07.000Z"
+}
+```
+</ResponseExample>

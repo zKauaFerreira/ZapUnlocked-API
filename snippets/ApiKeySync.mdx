@@ -1,0 +1,52 @@
+
+export const ApiKeySync = () => {
+  if (typeof window === 'undefined') return null;
+
+  const placeholders = ['SUA_SENHA_SECRETA', 'SUA_CHAVE', 'YOUR_SECRET', 'sua_senha_secreta_aqui'];
+  const urlPlaceholder = 'https://seu-projeto.up.railway.app';
+
+  const sync = () => {
+    const savedKey = localStorage.getItem('zap_unlocked_api_key');
+    const savedUrl = localStorage.getItem('zap_unlocked_url');
+    if (!savedKey && !savedUrl) return;
+    
+    document.querySelectorAll('code, pre span, a, span.token').forEach(el => {
+      if (el.children.length === 0 && el.textContent) {
+        if (savedKey) {
+          placeholders.forEach(p => {
+            if (el.textContent.includes(p)) el.textContent = el.textContent.replaceAll(p, savedKey);
+          });
+        }
+        if (savedUrl) {
+          const cleanUrl = savedUrl.replace(/\/$/, '');
+          if (el.textContent.includes(urlPlaceholder)) el.textContent = el.textContent.replaceAll(urlPlaceholder, cleanUrl);
+        }
+        const savedInternalSecret = localStorage.getItem('zap_unlocked_internal_secret');
+        if (savedInternalSecret) {
+          ['SEU_INTERNAL_SECRET', 'YOUR_INTERNAL_SECRET'].forEach(p => {
+            if (el.textContent.includes(p)) el.textContent = el.textContent.replaceAll(p, savedInternalSecret);
+          });
+        }
+      }
+      if (el.tagName === 'A' && el.href) {
+        if (savedKey) el.href = el.href.replaceAll('SUA_SENHA_SECRETA', savedKey);
+        if (savedUrl) el.href = el.href.replaceAll(urlPlaceholder, savedUrl.replace(/\/$/, ''));
+      }
+    });
+  };
+
+  if (typeof React !== 'undefined') {
+    React.useEffect(() => {
+      const t1 = setTimeout(sync, 500);
+      const t2 = setTimeout(sync, 1500);
+      const t3 = setTimeout(sync, 3000);
+      window.addEventListener('apikey_updated', sync);
+      return () => {
+        clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+        window.removeEventListener('apikey_updated', sync);
+      };
+    }, []);
+  }
+
+  return null;
+}

@@ -1,0 +1,74 @@
+
+export const ApiKeyGenerator = () => {
+  if (typeof window === 'undefined') return null;
+
+  const placeholders = ['SUA_SENHA_SECRETA', 'SUA_CHAVE', 'YOUR_SECRET', 'sua_senha_secreta_aqui'];
+  const urlPlaceholder = 'https://seu-projeto.up.railway.app';
+
+  const generateKey = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let k = '';
+    for (let i = 0; i < 35; i++) {
+        if (i > 0 && i % 5 === 0) k += '-';
+        k += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return k;
+  };
+
+  const sync = () => {
+    const savedKey = localStorage.getItem('zap_unlocked_api_key');
+    const savedUrl = localStorage.getItem('zap_unlocked_url');
+    if (!savedKey && !savedUrl) return;
+    
+    document.querySelectorAll('code, pre span, .terminal, a, span.token').forEach(el => {
+      if (el.children.length === 0 && el.textContent) {
+        if (savedKey) {
+          placeholders.forEach(p => {
+            if (el.textContent.includes(p)) el.textContent = el.textContent.replaceAll(p, savedKey);
+          });
+        }
+        if (savedUrl) {
+          const cleanUrl = savedUrl.replace(/\/$/, '');
+          if (el.textContent.includes(urlPlaceholder)) el.textContent = el.textContent.replaceAll(urlPlaceholder, cleanUrl);
+        }
+      }
+      if (el.tagName === 'A' && el.href) {
+        if (savedKey) el.href = el.href.replaceAll('SUA_SENHA_SECRETA', savedKey);
+        if (savedUrl) el.href = el.href.replaceAll(urlPlaceholder, savedUrl.replace(/\/$/, ''));
+      }
+    });
+
+    const display = document.getElementById('api-key-display');
+    if (display) display.innerText = savedKey || '';
+  };
+
+  if (typeof React !== 'undefined') {
+    React.useEffect(() => {
+      if (!localStorage.getItem('zap_unlocked_api_key')) {
+        const k = generateKey();
+        localStorage.setItem('zap_unlocked_api_key', k);
+      }
+      const t1 = setTimeout(sync, 500);
+      const t2 = setTimeout(sync, 1500);
+      window.addEventListener('apikey_updated', sync);
+      return () => {
+        clearTimeout(t1); clearTimeout(t2);
+        window.removeEventListener('apikey_updated', sync);
+      };
+    }, []);
+  }
+
+  const initial = typeof window !== 'undefined' ? localStorage.getItem('zap_unlocked_api_key') : null;
+
+  return (
+    <div className="flex items-center gap-2 flex-nowrap inline-flex align-middle py-1">
+      <code 
+        id="api-key-display" 
+        className="text-primary font-bold text-[13px] whitespace-nowrap min-w-[290px] text-center !border-none !ring-0 !outline-none bg-primary/5 px-2 py-0.5 rounded"
+        style={{ border: 'none', boxShadow: 'none', outline: 'none' }}
+      >
+        {initial || "Gerando..."}
+      </code>
+    </div>
+  );
+}

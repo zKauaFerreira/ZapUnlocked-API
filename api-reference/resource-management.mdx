@@ -1,0 +1,42 @@
+---
+title: "Gestão de Recursos"
+icon: "microchip"
+description: "Entenda como a **ZapUnlocked-API** utiliza os 500MB de RAM da Railway."
+---
+
+A **ZapUnlocked-API** foi otimizada para rodar em ambientes de alta restrição, como o plano free da **Railway (500MB RAM)**. Para garantir estabilidade total, dividimos o uso da memória de forma estratégica.
+
+## <Icon icon="pie-chart" /> Divisão da Memória RAM
+
+Nosso sistema monitora e aloca memória seguindo este padrão:
+
+- **50MB - Núcleo & Autenticação**: Espaço reservado para o motor Baileys manter a conexão ativa e processar eventos básicos.
+- **50MB - Margem de Segurança**: Reservado para picos do sistema operacional e do runtime Node.js.
+- **400MB - Processamento de Mídia**: O maior bloco, dedicado ao download, compressão e upload de fotos, vídeos e documentos.
+
+<Warning>
+  **Atenção**: Se você utilizar o banco de dados interno disponibilizado pela Railway na mesma instância, ele compartilhará estes mesmos 500MB totais. Recomendamos o uso do modo **stateless** para máxima eficiência.
+</Warning>
+
+---
+
+## <Icon icon="layer-group" /> Fila de Mídias (Download Queue)
+
+Para evitar que múltiplos envios simultâneos estourem o limite de 500MB, implementamos um sistema de **Fila Inteligente**:
+
+1. **Recebimento**: A API recebe múltiplas requisições de envio de mídia.
+2. **Fila**: Em vez de baixar todas ao mesmo tempo, elas entram em uma fila de espera.
+3. **Processamento Unitário**: O sistema processa um arquivo por vez (ou em pequenos lotes seguros).
+4. **Limpeza**: Assim que o arquivo é enviado ao WhatsApp, ele é deletado do servidor e a memória é liberada para o próximo item da fila.
+
+<Info>
+  Este sistema garante que você possa enviar arquivos de até **2GB** (via protocolo) mesmo tendo apenas **500MB** de RAM disponível no servidor.
+</Info>
+
+---
+
+## <Icon icon="gauge-high" /> Dicas de Performance
+
+- **Use URLs Diretas**: Sempre que possível, envie URLs de mídia em vez de buffers pesados.
+- **Monitore os Logs**: Fique atento a avisos de "Memory Pressure" nos logs da Railway.
+- **Evite Histórico Pesado**: Ao conectar, a sincronização de milhares de mensagens antigas pode consumir RAM extra temporariamente.
