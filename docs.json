@@ -104,5 +104,8 @@
     "socials": {
       "github": "https://github.com/zKauaFerreira/ZapUnlocked-API"
     }
+  },
+  "appearance": {
+    "default": "dark"
   }
 }

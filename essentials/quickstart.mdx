@@ -4,11 +4,6 @@ icon: "rocket"
 description: "Coloque sua API profissional de WhatsApp no ar em menos de 5 minutos com a **ZapUnlocked-API**."
 ---
 
-import { ApiKeyGenerator } from '/snippets/ApiKeyGenerator.mdx';
-import { InternalSecretGenerator } from '/snippets/InternalSecretGenerator.mdx';
-import { UrlInput } from '/snippets/UrlInput.mdx';
-import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
-
 <ApiKeySync />
 
 Siga este guia para hospedar a **ZapUnlocked-API** na Railway. Este processo garante que sua API fique online 24/7.
@@ -210,6 +205,14 @@ axios.post('https://seu-projeto.up.railway.app/send', {
   headers: { 'x-api-key': 'SUA_SENHA_SECRETA' }
 })
 .then(res => console.log(res.data));
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```filename
+// add code here
 ```
 
 </CodeGroup>
