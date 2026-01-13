@@ -99,6 +99,24 @@
         });
     }
 
+    // Function to hide copy button for specific code blocks
+    function hideCopyButtonForRailwayUrl() {
+        // Find all code blocks
+        const codeBlocks = document.querySelectorAll('.code-block');
+        
+        codeBlocks.forEach(block => {
+            // Check if the code block contains the railway URL
+            const codeContent = block.textContent || '';
+            if (codeContent.includes('https://seu-projeto.up.railway.app/qr?API_KEY')) {
+                // Find the copy button within this code block
+                const copyButton = block.querySelector('.h-\\[26px\\].w-\\[26px\\].flex.items-center.justify-center.rounded-md.backdrop-blur.peer.group\\/copy-button, [data-testid="copy-code-button"]');
+                if (copyButton) {
+                    copyButton.style.display = 'none';
+                }
+            }
+        });
+    }
+
     // Function to rename the Try it button to Gerar
     function renameTryItButton() {
         const tryItButtons = document.querySelectorAll('.tryit-button, [data-testid="try-it-button"]');
@@ -282,6 +300,7 @@
     translateUI();
     toggleBodyScroll();
     cleanUrlDisplay();
+    hideCopyButtonForRailwayUrl();
 
     // Run functions with delays to catch dynamic content
     setTimeout(() => {
@@ -309,6 +328,7 @@
         toggleBodyScroll();
         cleanUrlDisplay();
         colorRailwayDomain();
+        hideCopyButtonForRailwayUrl();
     });
 
     // Start observing the document for changes
@@ -330,6 +350,7 @@
                 toggleBodyScroll();
                 cleanUrlDisplay();
                 colorRailwayDomain();
+                hideCopyButtonForRailwayUrl();
             }, 100); // Small delay for content to render
         }
     }).observe(document.querySelector('title'), {
