@@ -95,3 +95,40 @@ Após o deploy terminar com sucesso, você precisa conectar sua conta do WhatsAp
 
 ```bash
 https://seu-projeto.up.railway.app/qr?API_KEY=SUA_SENHA_SECRETA
+````
+
+2. Escaneie o QR Code com seu celular.
+
+<Check>
+  Uma vez conectado, a página atualizará sozinha para mostrar o status "Conectado".
+</Check>
+
+## <Icon icon="vial" iconType="sharp-regular" color="#9d4fe6" size={22} /> Testando sua API
+
+Tente enviar uma mensagem simples usando cURL:
+
+<CodeGroup>
+
+```bash
+curl -X POST 'https://seu-projeto.up.railway.app/send' \
+  -H 'x-api-key: SUA_SENHA_SECRETA' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "phone": "5511999999999",
+    "message": "Olá da ZapUnlocked-API! 🚀"
+  }'
+```
+
+```javascript
+const axios = require('axios');
+
+axios.post('https://seu-projeto.up.railway.app/send', {
+  phone: '5511999999999',
+  message: 'Certifique-se de usar o código do país!'
+}, {
+  headers: { 'x-api-key': 'SUA_SENHA_SECRETA' }
+})
+.then(res => console.log(res.data));
+```
+
+</CodeGroup>
