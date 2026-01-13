@@ -240,11 +240,45 @@ function getSocket() {
 }
 
 /**
- * Obtém o QR code atual (se disponível)
- * @returns {string|null}
+ * Faz logout e limpa a sessão
+ * @returns {Promise<void>}
  */
-function getQRCode() {
-  return currentQR;
+async function logout() {
+  logger.log("🗑️ Iniciando processo de logout e limpeza de sessão...");
+
+  try {
+    if (sock) {
+      // Tenta deslogar gentilmente se estiver conectado
+      if (isReady) {
+        try {
+          await sock.logout();
+        } catch (e) {
+          logger.log("⚠️ Erro ao tentar sock.logout() (provavelmente já desconectado)");
+        }
+      }
+      sock.ev.removeAllListeners();
+      sock = null;
+    }
+  } catch (err) {
+    logger.error("⚠️ Erro ao fechar socket:", err.message);
+  }
+
+  isReady = false;
+  currentQR = null;
+
+  // Limpa o diretório de autenticação
+  if (fs.existsSync(AUTH_DIR)) {
+    try {
+      fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+      logger.log("✅ Diretório de autenticação removido com sucesso");
+    } catch (err) {
+      logger.error("❌ Erro ao remover diretório de autenticação:", err.message);
+    }
+  }
+
+  // Reinicia o bot em um novo ciclo para esperar novo scan
+  logger.log("🔄 Reiniciando bot para novo escaneamento...");
+  setTimeout(startBot, 2000);
 }
 
 module.exports = {
@@ -257,5 +291,6 @@ module.exports = {
   sendDocumentMessage,
   getStatus,
   getSocket,
-  getQRCode
+  getQRCode,
+  logout
 };

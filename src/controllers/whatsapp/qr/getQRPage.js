@@ -7,134 +7,37 @@ const whatsappService = require("../../../services/whatsapp");
  * @param {Object} res - Response
  */
 async function getQRPage(req, res) {
-    const qr = whatsappService.getQRCode();
-    const isConnected = whatsappService.getStatus();
+  const qr = whatsappService.getQRCode();
+  const isConnected = whatsappService.getStatus();
+  const apiKey = req.query.API_KEY || "";
 
-    if (isConnected) {
-        return res.send(getConnectedPageHTML());
-    }
+  try {
+    const qrDataURL = qr ? await QRCode.toDataURL(qr, {
+      width: 400,
+      margin: 2
+    }) : null;
 
-    if (!qr) {
-        return res.send(getWaitingPageHTML());
-    }
-
-    try {
-        const qrDataURL = await QRCode.toDataURL(qr, {
-            width: 400,
-            margin: 2
-        });
-
-        res.send(getQRPageHTML(qrDataURL));
-    } catch (error) {
-        res.status(500).send(getErrorPageHTML(error.message));
-    }
+    res.send(getQRPageHTML(qrDataURL, isConnected, apiKey));
+  } catch (error) {
+    res.status(500).send(`<h1>Erro ao gerar QR Code</h1><p>${error.message}</p>`);
+  }
 }
 
 // Templates HTML
-function getConnectedPageHTML() {
-    return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>WhatsApp - Conectado</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          margin: 0;
-          background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-          color: white;
-        }
-        .container {
-          text-align: center;
-          background: rgba(255, 255, 255, 0.1);
-          padding: 40px;
-          border-radius: 20px;
-          backdrop-filter: blur(10px);
-        }
-        h1 { margin: 0 0 20px 0; font-size: 2.5em; }
-        .status { font-size: 1.2em; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>✅ WhatsApp Conectado!</h1>
-        <p class="status">O bot está online e pronto para uso.</p>
-      </div>
-    </body>
-    </html>
-  `;
-}
+// O HTML base agora é único e o JS cuida dos estados
+function getQRPageHTML(qrDataURL, isConnected, apiKey) {
+  const authQuery = apiKey ? `?API_KEY=${apiKey}` : "";
 
-function getWaitingPageHTML() {
-    return `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="refresh" content="3">
-      <title>WhatsApp - Aguardando QR Code</title>
+      <title>WhatsApp Bot - Sessão</title>
       <style>
         body {
-          font-family: Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          margin: 0;
-          background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-          color: white;
-        }
-        .container {
-          text-align: center;
-          background: rgba(255, 255, 255, 0.1);
-          padding: 40px;
-          border-radius: 20px;
-          backdrop-filter: blur(10px);
-        }
-        .loader {
-          border: 4px solid rgba(255, 255, 255, 0.3);
-          border-top: 4px solid white;
-          border-radius: 50%;
-          width: 50px;
-          height: 50px;
-          animation: spin 1s linear infinite;
-          margin: 20px auto;
-        }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>⏳ Aguardando QR Code...</h1>
-        <div class="loader"></div>
-        <p>Esta página será atualizada automaticamente quando o QR Code estiver disponível.</p>
-      </div>
-    </body>
-    </html>
-  `;
-}
-
-function getQRPageHTML(qrDataURL) {
-    return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>WhatsApp - Escanear QR Code</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -150,92 +53,129 @@ function getQRPageHTML(qrDataURL) {
           border-radius: 20px;
           backdrop-filter: blur(10px);
           max-width: 500px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-        h1 { margin: 0 0 10px 0; }
-        .qr-container {
+        .qr-placeholder {
           background: white;
           padding: 20px;
           border-radius: 10px;
           display: inline-block;
           margin: 20px 0;
+          min-width: 200px;
+          min-height: 200px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
-        .qr-container img {
+        .qr-placeholder img {
           display: block;
-          max-width: 100%;
+          max-width: 300px;
           height: auto;
         }
-        .instructions {
-          margin-top: 20px;
-          font-size: 1.1em;
-          line-height: 1.6;
+        .status-badge {
+          display: inline-block;
+          padding: 5px 15px;
+          border-radius: 20px;
+          font-size: 0.9em;
+          margin-bottom: 15px;
+          background: rgba(255,255,255,0.2);
         }
-        .refresh-btn {
-          margin-top: 20px;
-          padding: 10px 20px;
-          background: white;
-          color: #25D366;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          font-size: 1em;
-          font-weight: bold;
+        .hidden { display: none; }
+        .loader {
+          border: 4px solid rgba(255, 255, 255, 0.3);
+          border-top: 4px solid white;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
         }
-        .refresh-btn:hover {
-          background: #f0f0f0;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       </style>
     </head>
     <body>
       <div class="container">
-        <h1>📲 Escaneie o QR Code</h1>
-        <p>Abra o WhatsApp no seu celular e escaneie este código</p>
-        <div class="qr-container">
-          <img src="${qrDataURL}" alt="QR Code WhatsApp">
+        <div id="status-area">
+          <div class="status-badge" id="bot-status">${isConnected ? "Conectado" : (qrDataURL ? "Aguardando Scan" : "Inicializando")}</div>
+          <h1 id="main-title">${isConnected ? "✅ Conectado!" : (qrDataURL ? "📲 Escaneie o QR" : "⏳ Inicializando...")}</h1>
+          <p id="main-desc">${isConnected ? "O bot está online e pronto." : "Abra o WhatsApp e escaneie o código abaixo."}</p>
         </div>
-        <div class="instructions">
-          <p><strong>Como escanear:</strong></p>
-          <ol style="text-align: left; display: inline-block;">
-            <li>Abra o WhatsApp no celular</li>
-            <li>Vá em <strong>Configurações</strong> → <strong>Aparelhos conectados</strong></li>
-            <li>Toque em <strong>Conectar um aparelho</strong></li>
-            <li>Escaneie este QR Code</li>
+
+        <div id="qr-area" class="${isConnected ? "hidden" : ""}">
+          <div class="qr-placeholder">
+            ${qrDataURL ? `<img src="${qrDataURL}" id="qr-img">` : `<div class="loader"></div>`}
+          </div>
+        </div>
+
+        <div class="instructions ${isConnected || !qrDataURL ? "hidden" : ""}" id="instr-area">
+          <p><strong>Como conectar:</strong></p>
+          <ol style="text-align: left; display: inline-block; font-size: 0.9em;">
+            <li>No celular, abra o <b>WhatsApp</b></li>
+            <li>Vá em <b>Configurações</b> > <b>Aparelhos conectados</b></li>
+            <li>Toque em <b>Conectar um aparelho</b></li>
           </ol>
         </div>
-        <button class="refresh-btn" onclick="location.reload()">🔄 Atualizar</button>
       </div>
+
+      <script>
+        const apiKey = "${apiKey}";
+        const authQuery = apiKey ? "?API_KEY=" + apiKey : "";
+        let lastQR = "${qrDataURL || ""}";
+        let checkCount = 0;
+
+        async function checkStatus() {
+            try {
+                // Polling do status da API
+                const resp = await fetch("/" + authQuery);
+                const data = await resp.json();
+                
+                // Se conectou, recarrega para mostrar a tela de sucesso total
+                if (data.whatsapp === "connected") {
+                    location.reload();
+                    return;
+                }
+
+                // Se não está conectado, tenta pegar a imagem do QR
+                const qrResp = await fetch("/qr/image" + authQuery);
+                if (qrResp.ok) {
+                    const blob = await qrResp.blob();
+                    const url = URL.createObjectURL(blob);
+                    
+                    document.getElementById("qr-area").classList.remove("hidden");
+                    const qrImg = document.getElementById("qr-img");
+                    
+                    if (qrImg) {
+                        qrImg.src = url;
+                    } else {
+                        // Se antes estava o loader, troca pelo img
+                        document.querySelector(".qr-placeholder").innerHTML = '<img src="' + url + '" id="qr-img">';
+                        document.getElementById("main-title").innerText = "📲 Escaneie o QR";
+                        document.getElementById("main-desc").innerText = "Abra o WhatsApp e escaneie o código abaixo.";
+                        document.getElementById("bot-status").innerText = "Aguardando Scan";
+                        document.getElementById("instr-area").classList.remove("hidden");
+                    }
+                } else if (qrResp.status === 404) {
+                    // Sem QR disponível ainda
+                    if (!document.getElementById("qr-img")) {
+                        document.getElementById("bot-status").innerText = "Inicializando...";
+                    }
+                }
+            } catch (err) {
+                console.error("Erro no polling:", err);
+            }
+            
+            checkCount++;
+            setTimeout(checkStatus, 5000);
+        }
+
+        // Inicia polling se não estiver conectado
+        if ("${isConnected}" !== "true") {
+            setTimeout(checkStatus, 5000);
+        }
+      </script>
     </body>
     </html>
   `;
 }
 
-function getErrorPageHTML(errorMessage) {
-    return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Erro</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          margin: 0;
-          background: #f44336;
-          color: white;
-        }
-      </style>
-    </head>
-    <body>
-      <div>
-        <h1>❌ Erro ao gerar QR Code</h1>
-        <p>${errorMessage}</p>
-      </div>
-    </body>
-    </html>
-  `;
-}
 
 module.exports = getQRPage;

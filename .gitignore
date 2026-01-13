@@ -109,3 +109,4 @@ auth_info/
 *.data.json
 creds.json
 package-lock.json
+.vscode/

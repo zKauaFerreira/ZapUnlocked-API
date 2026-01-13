@@ -16,7 +16,7 @@
             "args": [
                 "-NoProfile",
                 "-Command",
-                "git add .; Start-Sleep -Milliseconds 1500; git commit -m \"${input:commitMessage}\"; Start-Sleep -Milliseconds 1500; git push"
+                "git add .; git commit -m \"${input:commitMessage}\"; git push"
             ],
             "problemMatcher": [],
             "presentation": {
