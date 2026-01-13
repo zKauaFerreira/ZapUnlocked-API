@@ -7,42 +7,43 @@ const logger = require("../../../utils/logger");
  * @param {Object} req - Request
  * @param {Object} res - Response
  */
-logger.log(`🔍 Request recebida em /send_image: ${JSON.stringify(req.body)}`);
+async function sendImage(req, res) {
+    logger.log(`🔍 Request recebida em /send_image: ${JSON.stringify(req.body)}`);
 
-if (!whatsappService.getStatus()) {
-    return res.status(503).json({ error: "WhatsApp ainda não conectado" });
-}
+    if (!whatsappService.getStatus()) {
+        return res.status(503).json({ error: "WhatsApp ainda não conectado" });
+    }
 
-const { phone, image_url, caption, viewOnce } = req.body;
-const isViewOnce = String(viewOnce) === "true";
+    const { phone, image_url, caption, viewOnce } = req.body;
+    const isViewOnce = String(viewOnce) === "true";
 
-if (!phone || !image_url) {
-    return res.status(400).json({ error: "phone e image_url são obrigatórios" });
-}
+    if (!phone || !image_url) {
+        return res.status(400).json({ error: "phone e image_url são obrigatórios" });
+    }
 
-let filePath = null;
+    let filePath = null;
 
-try {
-    const jid = `${phone}@s.whatsapp.net`;
+    try {
+        const jid = `${phone}@s.whatsapp.net`;
 
-    // 1. Baixa a imagem
-    logger.log(`📥 Baixando imagem para ${phone}...`);
-    filePath = await imageService.downloadImage(image_url);
+        // 1. Baixa a imagem
+        logger.log(`📥 Baixando imagem para ${phone}...`);
+        filePath = await imageService.downloadImage(image_url);
 
-    // 2. Envia pro WhatsApp
-    logger.log(`📤 Enviando imagem para ${phone} (viewOnce: ${isViewOnce})...`);
-    await whatsappService.sendImageMessage(jid, filePath, caption || "", isViewOnce);
+        // 2. Envia pro WhatsApp
+        logger.log(`📤 Enviando imagem para ${phone} (viewOnce: ${isViewOnce})...`);
+        await whatsappService.sendImageMessage(jid, filePath, caption || "", isViewOnce);
 
-    res.json({ success: true, message: "Imagem enviada com sucesso ✅" });
-} catch (err) {
-    logger.error("❌ Erro ao enviar imagem:", err.message);
-    res.status(500).json({ error: err.message });
-} finally {
-    // 3. Limpa o arquivo sempre
-    if (filePath) {
-        imageService.cleanup(filePath);
+        res.json({ success: true, message: "Imagem enviada com sucesso ✅" });
+    } catch (err) {
+        logger.error("❌ Erro ao enviar imagem:", err.message);
+        res.status(500).json({ error: err.message });
+    } finally {
+        // 3. Limpa o arquivo sempre
+        if (filePath) {
+            imageService.cleanup(filePath);
+        }
     }
 }
-
 
 module.exports = sendImage;
