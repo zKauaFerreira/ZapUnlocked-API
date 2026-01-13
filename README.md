@@ -26,7 +26,7 @@ O **ZapUnlocked-API** é uma solução profissional, **100% gratuita e de códig
 
 ---
 
-## � Principais Rotas
+## 🚀 Principais Rotas
 
 - `GET /` - Status da API
 - `POST /send` - Enviar Mensagem de Texto
