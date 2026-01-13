@@ -27,7 +27,10 @@ async function startBot() {
       ...WHATSAPP_CONFIG
     });
 
-    sock.ev.on("creds.update", saveCreds);
+    sock.ev.on("creds.update", async () => {
+      await saveCreds();
+      logger.log("💾 Credenciais do WhatsApp atualizadas/salvas");
+    });
 
     sock.ev.on("connection.update", async (update) => {
       const { connection, lastDisconnect, qr } = update;
