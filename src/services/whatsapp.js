@@ -1,3 +1,4 @@
+const fs = require("fs");
 const {
   default: makeWASocket,
   useMultiFileAuthState,
