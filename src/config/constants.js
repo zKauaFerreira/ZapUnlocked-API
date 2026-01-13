@@ -15,6 +15,7 @@ if (!fs.existsSync(authDir)) {
 module.exports = {
   PORT: process.env.PORT || 3000,
   API_KEY: process.env.API_KEY,
+  INTERNAL_SECRET: process.env.INTERNAL_SECRET,
   AUTH_DIR: authDir,
   WHATSAPP_CONFIG: {
     browser: ["Spotify Payments", "Opera GX", "120.0.5543.204"],

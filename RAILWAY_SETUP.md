@@ -15,13 +15,16 @@ A pasta `auth_info` contém as credenciais da sessão do WhatsApp que **mudam co
    - **Mount Path**: `/data/auth_info`
    - **Name**: `whatsapp-auth`
 
-### 2. Configurar Variável de Ambiente
+### 2. Configurar Variáveis de Ambiente
 
 1. Vá em **Variables**
-2. Adicione:
-   ```
-   AUTH_DIR=/data/auth_info
-   ```
+2. Adicione as seguintes variáveis:
+
+   | Variável | Valor Sugerido / Descrição |
+   | :--- | :--- |
+   | `AUTH_DIR` | `/data/auth_info` (Caminho do volume montado) |
+   | `API_KEY` | Sua senha de acesso à API (ex: `7fA9QmL...`) |
+   | `PORT` | `3000` (Opcional, a Railway define automaticamente) |
 
 ### 3. Deploy
 

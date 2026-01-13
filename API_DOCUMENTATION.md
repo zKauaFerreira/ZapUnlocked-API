@@ -39,9 +39,27 @@ Envia uma mensagem contendo um botão interativo.
   "phone": "5511999999999",
   "message": "Escolha uma opção:",
   "button_text": "Texto do Botão",
-  "button_value": "valor_clicado"
+  "webhook": {
+    "url": "https://meuservico.com/webhook",
+    "method": "POST",
+    "headers": {
+      "x-api-key": "SUA_CHAVE",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "event": "button_click",
+      "user": "{{from}}",
+      "button": "{{text}}",
+      "data": "valor_fixo"
+    }
+  }
 }
 ```
+
+#### Placeholders Disponíveis no Body/Headers:
+- `{{from}}`: Número de quem clicou (ex: `5511999999999`).
+- `{{text}}`: Texto do botão (ex: `Texto do Botão`).
+- `{{timestamp}}`: Data/hora atual (ISO format).
 
 ---
 

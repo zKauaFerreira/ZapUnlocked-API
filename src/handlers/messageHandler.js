@@ -1,5 +1,7 @@
 const { parseMessage, shouldIgnoreMessage } = require("../utils/messageParser");
 const { createStickerFromImage, convertStickerToImage } = require("./stickerHandler");
+const { verifyAndDecodePayload } = require("../utils/callbackUtils");
+const { triggerWebhook } = require("../services/webhookService");
 const logger = require("../utils/logger");
 
 /**
@@ -19,6 +21,34 @@ async function handleMessage(sock, msgUpsert) {
   if (!parsed) return;
 
   const { jid, phone, text, imageMessage, quotedImage, quotedSticker, buttonResponse, quotedMessage } = parsed;
+
+  const messageText = text || "";
+
+  // ================== CALLBACK DE WEBHOOK NO BOTÃO (|cb=) ==================
+
+  if (messageText.includes("|cb=")) {
+    const parts = messageText.split("|cb=");
+    const buttonLabel = parts[0];
+    const token = parts[1];
+
+    const webhookConfig = verifyAndDecodePayload(token);
+
+    if (webhookConfig) {
+      logger.log(`🎯 Callback detectado no botão: "${buttonLabel}" de ${phone}`);
+
+      // Dispara o webhook em background (não aguarda para não travar o bot)
+      triggerWebhook(webhookConfig, {
+        from: phone,
+        text: buttonLabel
+      }).catch(err => logger.error("Erro ao disparar webhook:", err.message));
+    } else {
+      logger.warn(`⚠️ Callback inválido ou expirado recebido de ${phone}`);
+    }
+
+    // Se for um clique de botão com callback, podemos parar o processamento aqui
+    // se não quisermos que caia em outros comandos
+    return;
+  }
 
   // Debug: log quando detecta .f no texto
   if (text.includes(".f")) {
