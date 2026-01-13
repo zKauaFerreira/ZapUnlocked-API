@@ -28,19 +28,18 @@ Envia um áudio. Se for menor que 15MB, envia como áudio padrão (ou PTT). Se f
   URL pública direta do arquivo de áudio (mp3, wav, ogg).
 </ParamField>
 
-<ParamField body="ptt" type="boolean" default="false">
+<ParamField body="ptt" default="false" type="boolean">
   Se `true`, aparece como mensagem de voz (apenas para arquivos pequenos).
 </ParamField>
 
-<ParamField body="asDocument" type="boolean" default="false">
+<ParamField body="asDocument" default="false" type="boolean">
   Força o envio como arquivo.
 </ParamField>
-
-
 
 ### Resposta
 
 <ResponseExample>
+
 ```json 200 Sucesso
 {
   "success": true,
@@ -48,10 +47,12 @@ Envia um áudio. Se for menor que 15MB, envia como áudio padrão (ou PTT). Se f
 }
 ```
 
+
 ```json 401 Erro
 {
   "error": "Unauthorized",
   "message": "API Key inválida ou ausente"
 }
 ```
+
 </ResponseExample>

@@ -6,7 +6,7 @@ description: "Entenda como a **ZapUnlocked-API** utiliza os 500MB de RAM da Rail
 
 A **ZapUnlocked-API** foi otimizada para rodar em ambientes de alta restrição, como o plano free da **Railway (500MB RAM)**. Para garantir estabilidade total, dividimos o uso da memória de forma estratégica.
 
-## <Icon icon="pie-chart" /> Divisão da Memória RAM
+## <Icon icon="pie-chart" iconType="sharp-regular" color="#9d4fe6" size={22} /> Divisão da Memória RAM
 
 Nosso sistema monitora e aloca memória seguindo este padrão:
 
@@ -20,7 +20,7 @@ Nosso sistema monitora e aloca memória seguindo este padrão:
 
 ---
 
-## <Icon icon="layer-group" /> Fila de Mídias (Download Queue)
+## <Icon icon="layer-group" iconType="sharp-regular" color="#9d4fe6" size={22} /> Fila de Mídias (Download Queue)
 
 Para evitar que múltiplos envios simultâneos estourem o limite de 500MB, implementamos um sistema de **Fila Inteligente**:
 
@@ -35,7 +35,7 @@ Para evitar que múltiplos envios simultâneos estourem o limite de 500MB, imple
 
 ---
 
-## <Icon icon="gauge-high" /> Dicas de Performance
+## <Icon icon="gauge-high" iconType="sharp-regular" color="#9d4fe6" size={22} /> Dicas de Performance
 
 - **Use URLs Diretas**: Sempre que possível, envie URLs de mídia em vez de buffers pesados.
 - **Monitore os Logs**: Fique atento a avisos de "Memory Pressure" nos logs da Railway.

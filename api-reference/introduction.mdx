@@ -9,18 +9,18 @@ import { UrlInput } from '/snippets/UrlInput.mdx';
 
 <ApiKeySync />
 
-## <Icon icon="eye" /> Visão Geral
+## <Icon icon="eye" iconType="sharp-regular" color="#9d4fe6" size={22} /> Visão Geral
 
 A **ZapUnlocked-API** é uma solução REST de alta performance projetada para transformar o WhatsApp em uma poderosa ferramenta de automação. Ela utiliza JSON no corpo das requisições e retorna códigos de status HTTP padrão para indicar o sucesso ou falha das operações.
 
-### <Icon icon="microchip" /> Arquitetura e Motor
+### <Icon icon="microchip" iconType="sharp-regular" color="#9d4fe6" size={22} /> Arquitetura e Motor
 
 Diferente de outras soluções que exigem infraestruturas pesadas, a **ZapUnlocked-API** é construída sobre o **Baileys**, a biblioteca de WhatsApp mais estável e rica em recursos disponível.
 
 - **Stateless (Sem Estado)**: A API foi desenhada para ser o mais leve possível. Interações como botões não exigem um banco de dados local para rastrear o que o usuário clicou; toda a informação necessária é criptografada e enviada no próprio ID do botão.
 - **PTT Nativo**: Conversão automática de áudio para o formato OGG Opus, garantindo que mensagens de voz apareçam corretamente no iPhone e Android.
 
-## <Icon icon="route" /> Fluxo de Trabalho
+## <Icon icon="route" iconType="sharp-regular" color="#9d4fe6" size={22} /> Fluxo de Trabalho
 
 Para colocar seu bot no ar, siga estes três passos simples:
 
@@ -36,7 +36,7 @@ Para colocar seu bot no ar, siga estes três passos simples:
   </Step>
 </Steps>
 
-## <Icon icon="link" /> URL Base
+## <Icon icon="link" iconType="sharp-regular" color="#9d4fe6" size={22} /> URL Base
 
 Defina a URL do seu projeto abaixo para que todos os exemplos de código sejam atualizados automaticamente:
 
@@ -48,7 +48,7 @@ Se você estiver hospedando na Railway, sua URL base será semelhante a esta:
 https://seu-projeto.up.railway.app
 ```
 
-## <Icon icon="shield-check" /> Autenticação
+## <Icon icon="shield-check" iconType="sharp-regular" color="#9d4fe6" size={22} /> Autenticação
 
 Todos os endpoints da API (exceto a rota de status raiz e o acesso à página do QR Code) exigem uma chave de API. Você deve fornecer sua chave secreta em cada requisição usando um dos seguintes métodos:
 
@@ -73,7 +73,7 @@ Todos os endpoints da API (exceto a rota de status raiz e o acesso à página do
   Nunca compartilhe sua chave de API. Ela fornece acesso total à conta do WhatsApp conectada.
 </Warning>
 
-## <Icon icon="file-code" /> Formato de Resposta
+## <Icon icon="file-code" iconType="sharp-regular" color="#9d4fe6" size={22} /> Formato de Resposta
 
 Todas as respostas da API são retornadas em formato JSON:
 

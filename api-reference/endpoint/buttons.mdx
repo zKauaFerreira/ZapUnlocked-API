@@ -8,7 +8,7 @@ import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
 
 <ApiKeySync />
 
-Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma abreviação para **Send With Buttons** (*Enviar com Botão*). Este sistema é **totalmente stateless**: as instruções do que acontece no clique estão embutidas no ID do botão de forma criptografada.
+Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma abreviação para **Send With Buttons** (_Enviar com Botão_). Este sistema é **totalmente stateless**: as instruções do que acontece no clique estão embutidas no ID do botão de forma criptografada.
 
 <Note>
   **Validade do Botão**: Por segurança e para evitar tokens excessivamente longos, os botões gerados têm uma validade de **24 horas**. Após esse período, o clique não disparará mais o webhook (isso será alterado no futuro).
@@ -42,11 +42,12 @@ Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma a
 
 <ParamField body="webhook" type="object">
   Configuração do destino dos dados quando houver o clique.
+
   <Expandable title="Configuração do Webhook">
     <ParamField body="url" type="string" required>
       URL que receberá o POST.
     </ParamField>
-    <ParamField body="method" type="string" default="POST">
+    <ParamField body="method" default="POST" type="string">
       Método HTTP.
     </ParamField>
     <ParamField body="headers" type="object">
@@ -61,6 +62,7 @@ Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma a
 ### Resposta
 
 <ResponseExample>
+
 ```json 200 Sucesso
 {
   "success": true,
@@ -68,12 +70,12 @@ Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma a
 }
 ```
 
+
 ```json 401 Erro
 {
   "error": "Unauthorized",
   "message": "API Key inválida ou ausente"
 }
 ```
+
 </ResponseExample>
-
-
