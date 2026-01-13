@@ -15,7 +15,7 @@ A **ZapUnlocked-API** é uma solução REST de alta performance projetada para t
 
 ### <Icon icon="microchip" /> Arquitetura e Motor
 
-Diferente de outras soluções que exigem infraestruturas pesadas, a **ZapUnlocked-API** é construída sobre o **Baileys**, a biblioteca de WhatsApp mais estável e rica em recursos disponível. 
+Diferente de outras soluções que exigem infraestruturas pesadas, a **ZapUnlocked-API** é construída sobre o **Baileys**, a biblioteca de WhatsApp mais estável e rica em recursos disponível.
 
 - **Stateless (Sem Estado)**: A API foi desenhada para ser o mais leve possível. Interações como botões não exigem um banco de dados local para rastrear o que o usuário clicou; toda a informação necessária é criptografada e enviada no próprio ID do botão.
 - **PTT Nativo**: Conversão automática de áudio para o formato OGG Opus, garantindo que mensagens de voz apareçam corretamente no iPhone e Android.
@@ -55,12 +55,14 @@ Todos os endpoints da API (exceto a rota de status raiz e o acesso à página do
 <AccordionGroup>
   <Accordion title="Autenticação por Header (Recomendado)" icon="key">
     Inclua o header `x-api-key` em suas requisições HTTP.
+
     ```bash
     x-api-key: sua_senha_secreta_aqui
     ```
   </Accordion>
   <Accordion title="Autenticação por Query Parameter" icon="link">
     Inclua o parâmetro `API_KEY` na string de consulta (URL).
+
     ```bash
     ?API_KEY=sua_senha_secreta_aqui
     ```
@@ -83,6 +85,7 @@ Todas as respostas da API são retornadas em formato JSON:
 ```
 
 <ResponseExample>
+
 ```json 200 Sucesso
 {
   "success": true,
@@ -90,9 +93,11 @@ Todas as respostas da API são retornadas em formato JSON:
 }
 ```
 
+
 ```json 401 Erro
 {
   "error": "Unauthorized"
 }
 ```
+
 </ResponseExample>
