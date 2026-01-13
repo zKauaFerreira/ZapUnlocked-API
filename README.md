@@ -1,11 +1,14 @@
 # 🚀 ZapUnlocked-API 📲✨
 
 ### 🌐 Select Language / Selecione o Idioma:
-[🇺🇸 English](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/en.md) | [🇪🇸 Español](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/es.md) | [🇫🇷 Français](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/fr.md) | [🇩🇪 Deutsch](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/de.md) | [🇨🇳 中文](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/zh.md) | [🇯🇵 日本語](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/ja.md) | [🇷🇺 Русский](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/ru.md)
+
+| English | Español | Français | Deutsch | 中文 | 日本語 | Русский |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| [![English](https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/us.svg)](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/en.md) | [![Español](https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/es.svg)](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/es.md) | [![Français](https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/fr.svg)](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/fr.md) | [![Deutsch](https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/de.svg)](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/de.md) | [![中文](https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/cn.svg)](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/zh.md) | [![日本語](https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/jp.svg)](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/ja.md) | [![Русский](https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/ru.svg)](https://github.com/zKauaFerreira/ZapUnlocked-API/blob/main/readmes/ru.md) |
 
 ---
 
-## 🇧🇷 Português
+## <img src="https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/br.svg" width="30"> Português
 API profissional para automação de WhatsApp. Simples, rápida e poderosa.
 
 **Principais Funcionalidades:**

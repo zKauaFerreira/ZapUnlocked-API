@@ -1,4 +1,4 @@
-# 🇯🇵 ZapUnlocked-API
+# <img src="https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/jp.svg" width="30"> ZapUnlocked-API
 
 プロフェッショナルな WhatsApp 自動化 API。シンプル、高速、そして強力です。
 

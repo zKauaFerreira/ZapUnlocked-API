@@ -1,4 +1,4 @@
-# 🇫🇷 ZapUnlocked-API
+# <img src="https://github.com/lipis/flag-icons/raw/refs/heads/main/flags/4x3/fr.svg" width="30"> ZapUnlocked-API
 
 API d'automatisation professionnelle pour WhatsApp. Simple, rapide et puissante.
 
