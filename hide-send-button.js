@@ -350,6 +350,7 @@
                 toggleBodyScroll();
                 cleanUrlDisplay();
                 colorRailwayDomain();
+                hideCopyButtonForRailwayUrl();
             }, 100); // Small delay for content to render
         }
     }).observe(document.querySelector('title'), {
