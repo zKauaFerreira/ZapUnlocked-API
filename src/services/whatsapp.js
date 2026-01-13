@@ -132,7 +132,7 @@ async function sendImageMessage(jid, imagePath, caption) {
   });
 }
 
-const { getAudioDuration, generateWaveform } = require("baileys-original");
+const { getAudioDuration, getAudioWaveform } = require("baileys-original");
 
 /**
  * Envia um áudio via WhatsApp
@@ -155,7 +155,7 @@ async function sendAudioMessage(jid, audioPath, isPtt = false) {
 
   try {
     seconds = await getAudioDuration(buffer);
-    waveform = await generateWaveform(buffer);
+    waveform = await getAudioWaveform(buffer);
   } catch (err) {
     logger.log(`⚠️ Falha ao gerar metadados de áudio: ${err.message}`);
   }
