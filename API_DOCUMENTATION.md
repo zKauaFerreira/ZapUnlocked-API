@@ -11,6 +11,23 @@ Todas as rotas (exceto o status principal `/`) requerem a passagem da chave de A
 
 ---
 
+### Enviar Imagem (via URL)
+`POST /send_image`
+
+Envia uma imagem a partir de uma URL pública. A imagem é baixada temporariamente e removida logo após o envio.
+
+**Body:**
+```json
+{
+  "phone": "555185867410",
+  "image_url": "https://exemplo.com/imagem.jpg",
+  "caption": "Legenda opcional",
+  "viewOnce": false
+}
+```
+
+---
+
 ## 🚀 Endpoints de Mensagens
 
 ### 1️⃣ Enviar Mensagem de Texto

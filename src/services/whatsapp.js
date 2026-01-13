@@ -113,6 +113,26 @@ async function sendButtonMessage(jid, message, buttonText, buttonValue) {
 }
 
 /**
+ * Envia uma imagem via WhatsApp
+ * @param {string} jid - JID do destinatário
+ * @param {string} imagePath - Caminho local da imagem
+ * @param {string} caption - Legenda da imagem
+ * @param {boolean} viewOnce - Se é visualização única
+ * @returns {Promise<Object>}
+ */
+async function sendImageMessage(jid, imagePath, caption, viewOnce = false) {
+  if (!sock || !isReady) {
+    throw new Error("WhatsApp não está conectado");
+  }
+
+  return await sock.sendMessage(jid, {
+    image: { url: imagePath },
+    caption: caption,
+    viewOnce: viewOnce
+  });
+}
+
+/**
  * Verifica se o WhatsApp está pronto
  * @returns {boolean}
  */
@@ -140,6 +160,7 @@ module.exports = {
   startBot,
   sendMessage,
   sendButtonMessage,
+  sendImageMessage,
   getStatus,
   getSocket,
   getQRCode
