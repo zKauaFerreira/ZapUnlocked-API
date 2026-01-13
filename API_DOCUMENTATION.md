@@ -75,6 +75,24 @@ Envia qualquer tipo de arquivo (PDF, DOCX, ZIP, etc). Limite de 400MB configurad
 }
 ```
 
+### Enviar PIX Interativo
+`POST /send_pix`
+
+Envia uma mensagem com um botão interativo de PIX. Requer a chave PIX, o tipo da chave e o nome do recebedor.
+
+**Body:**
+```json
+{
+  "phone": "555185867410",
+  "text": "Aqui está o link para pagamento via PIX:",
+  "pix_key": "exemplo@pix.com",
+  "key_type": "EMAIL",
+  "merchant_name": "Seu Nome ou Empresa"
+}
+```
+- `key_type`: Pode ser `PHONE`, `EMAIL`, `CPF`, `EVP` (chave aleatória).
+- `merchant_name`: Nome do recebedor que aparecerá no botão.
+
 ---
 
 ## 🚀 Endpoints de Mensagens

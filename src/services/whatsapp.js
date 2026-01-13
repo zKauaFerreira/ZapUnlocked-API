@@ -234,6 +234,43 @@ function getStatus() {
 }
 
 /**
+ * Envia uma mensagem interativa de PIX via WhatsApp
+ * @param {string} jid - JID do destinatário
+ * @param {string} text - Texto da mensagem (ex: "Aqui está o pagamento")
+ * @param {string} pixKey - Chave PIX
+ * @param {string} keyType - Tipo da chave (PHONE, EMAIL, CPF, EVP)
+ * @param {string} merchantName - Nome do recebedor
+ * @returns {Promise<Object>}
+ */
+async function sendPixMessage(jid, text, pixKey, keyType, merchantName) {
+  logger.log(`📡 Enviando PIX interativo para ${jid} (${pixKey})`);
+  if (!sock || !isReady) {
+    throw new Error("WhatsApp não está conectado");
+  }
+
+  return await sock.sendMessage(jid, {
+    text: text || "",
+    interactiveButtons: [
+      {
+        name: "payment_info",
+        buttonParamsJson: JSON.stringify({
+          payment_settings: [
+            {
+              type: "pix_static_code",
+              pix_static_code: {
+                merchant_name: merchantName || "Pagamento via API",
+                key: pixKey,
+                key_type: keyType || "EVP"
+              }
+            }
+          ]
+        })
+      }
+    ]
+  });
+}
+
+/**
  * Obtém a instância do socket
  * @returns {Object|null}
  */
@@ -324,6 +361,7 @@ module.exports = {
   sendAudioMessage,
   sendVideoMessage,
   sendDocumentMessage,
+  sendPixMessage,
   getStatus,
   getSocket,
   getQRCode,
