@@ -2,8 +2,13 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const ffmpeg = require("fluent-ffmpeg");
+const ffmpegPath = require("ffmpeg-static");
 const { TEMP_DIR } = require("../config/constants");
 const logger = require("../utils/logger");
+
+// Configura o caminho do ffmpeg
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 /**
  * Serviço para download e limpeza de mídias temporárias
@@ -95,6 +100,35 @@ async function downloadMedia(url) {
 }
 
 /**
+ * Converte um arquivo de áudio para OGG/Opus (formato nativo do WhatsApp)
+ * @param {string} inputPath - Caminho do arquivo original
+ * @returns {Promise<string>} - Caminho do novo arquivo .ogg
+ */
+async function convertToOgg(inputPath) {
+    const outputPath = inputPath.replace(path.extname(inputPath), ".ogg");
+    logger.log(`🔄 Convertendo áudio para OGG/Opus: ${path.basename(inputPath)} -> ${path.basename(outputPath)}`);
+
+    return new Promise((resolve, reject) => {
+        ffmpeg(inputPath)
+            .toFormat("opus")
+            .audioChannels(1)
+            .addOptions([
+                "-avoid_negative_ts make_zero",
+                "-acodec libopus"
+            ])
+            .on("end", () => {
+                logger.log("✅ Conversão concluída com sucesso");
+                resolve(outputPath);
+            })
+            .on("error", (err) => {
+                logger.error("❌ Erro na conversão de áudio:", err.message);
+                reject(err);
+            })
+            .save(outputPath);
+    });
+}
+
+/**
  * Remove um arquivo local com segurança
  * @param {string} filePath - Caminho do arquivo
  */
@@ -124,5 +158,6 @@ function getFileSize(filePath) {
 module.exports = {
     downloadMedia,
     cleanup: cleanupLocal,
-    getFileSize
+    getFileSize,
+    convertToOgg
 };
