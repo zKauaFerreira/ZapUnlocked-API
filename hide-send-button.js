@@ -328,6 +328,7 @@
         toggleBodyScroll();
         cleanUrlDisplay();
         colorRailwayDomain();
+        hideCopyButtonForRailwayUrl();
     });
 
     // Start observing the document for changes
