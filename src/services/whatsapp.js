@@ -133,6 +133,80 @@ async function sendImageMessage(jid, imagePath, caption) {
 }
 
 /**
+ * Envia um áudio via WhatsApp
+ * @param {string} jid - JID do destinatário
+ * @param {string} audioPath - Caminho local do áudio
+ * @param {boolean} isPtt - Se envia como mensagem de voz
+ * @returns {Promise<Object>}
+ */
+async function sendAudioMessage(jid, audioPath, isPtt = false) {
+  logger.log(`📡 Enviando áudio para ${jid} (PTT: ${isPtt})`);
+  if (!sock || !isReady) {
+    throw new Error("WhatsApp não está conectado");
+  }
+
+  return await sock.sendMessage(jid, {
+    audio: fs.readFileSync(audioPath),
+    ptt: isPtt,
+    mimetype: "audio/mp4" // Formato mais compatível
+  });
+}
+
+/**
+ * Envia um vídeo via WhatsApp
+ * @param {string} jid - JID do destinatário
+ * @param {string} videoPath - Caminho local do vídeo
+ * @param {string} caption - Legenda
+ * @param {boolean} asDocument - Se envia como arquivo
+ * @param {boolean} gifPlayback - Se envia como GIF
+ * @param {boolean} ptv - Se envia como vídeo redondo (curto)
+ * @returns {Promise<Object>}
+ */
+async function sendVideoMessage(jid, videoPath, caption, asDocument = false, gifPlayback = false, ptv = false) {
+  logger.log(`📡 Enviando vídeo para ${jid} (Document: ${asDocument}, GIF: ${gifPlayback}, PTV: ${ptv})`);
+  if (!sock || !isReady) {
+    throw new Error("WhatsApp não está conectado");
+  }
+
+  const messageOptions = {
+    caption: caption
+  };
+
+  if (asDocument) {
+    messageOptions.document = fs.readFileSync(videoPath);
+    messageOptions.mimetype = "video/mp4";
+    messageOptions.fileName = `video_${Date.now()}.mp4`;
+  } else {
+    messageOptions.video = fs.readFileSync(videoPath);
+    messageOptions.gifPlayback = gifPlayback;
+    messageOptions.ptv = ptv;
+  }
+
+  return await sock.sendMessage(jid, messageOptions);
+}
+
+/**
+ * Envia um documento via WhatsApp
+ * @param {string} jid - JID do destinatário
+ * @param {string} filePath - Caminho local do arquivo
+ * @param {string} fileName - Nome original do arquivo
+ * @param {string} mimetype - Tipo MIME
+ * @returns {Promise<Object>}
+ */
+async function sendDocumentMessage(jid, filePath, fileName, mimetype) {
+  logger.log(`📡 Enviando documento para ${jid} (${fileName})`);
+  if (!sock || !isReady) {
+    throw new Error("WhatsApp não está conectado");
+  }
+
+  return await sock.sendMessage(jid, {
+    document: fs.readFileSync(filePath),
+    fileName: fileName,
+    mimetype: mimetype || "application/octet-stream"
+  });
+}
+
+/**
  * Verifica se o WhatsApp está pronto
  * @returns {boolean}
  */
@@ -161,6 +235,9 @@ module.exports = {
   sendMessage,
   sendButtonMessage,
   sendImageMessage,
+  sendAudioMessage,
+  sendVideoMessage,
+  sendDocumentMessage,
   getStatus,
   getSocket,
   getQRCode

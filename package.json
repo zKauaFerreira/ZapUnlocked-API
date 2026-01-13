@@ -12,7 +12,6 @@
     "@itsukichan/baileys": "^7.3.2",
     "axios": "^1.6.0",
     "express": "^4.19.2",
-    "jimp": "^0.22.10",
     "node-fetch": "^2.7.0",
     "qrcode": "^1.5.4"
   }
