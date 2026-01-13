@@ -1,8 +1,9 @@
 ---
-title: Instalação e Hospedagem
+title: "Instalação e Hospedagem"
 icon: "rocket"
 description: "Coloque sua API profissional de WhatsApp no ar em menos de 5 minutos com a **ZapUnlocked-API**."
 ---
+
 import { ApiKeyGenerator } from '/snippets/ApiKeyGenerator.mdx';
 import { InternalSecretGenerator } from '/snippets/InternalSecretGenerator.mdx';
 import { UrlInput } from '/snippets/UrlInput.mdx';
@@ -12,7 +13,7 @@ import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
 
 Siga este guia para hospedar a **ZapUnlocked-API** na Railway. Este processo garante que sua API fique online 24/7.
 
-## <Icon icon="rocket" /> Deploy na Railway
+## <Icon icon="rocket" iconType="sharp-regular" color="#9d4fe6" size={22} /> Deploy na Railway
 
 A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robusta, deploy automático via GitHub e um plano gratuito generoso.
 
@@ -20,13 +21,11 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
   <Step title="Fork do Repositório" icon="code-fork">
     Comece fazendo um fork do [repositório oficial](https://github.com/zKauaFerreira/ZapUnlocked-API) para a sua conta do GitHub.
   </Step>
-
   <Step title="Criar Projeto na Railway" icon="plus">
     1. Faça login no seu [painel da Railway](https://railway.app/).
     2. Clique em **New Project** e selecione **Deploy from GitHub repo**.
     3. Escolha o seu repositório forkado `ZapUnlocked-API`.
   </Step>
-
   <Step title="Configurar Variáveis de Ambiente" icon="list-check">
     Nas configurações do projeto na Railway (aba **Variables**), adicione estas chaves clicando em **New Variable**:
 
@@ -37,46 +36,50 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
           <th>Valor / Descrição</th>
         </tr>
       </thead>
+
       <tbody>
         <tr>
           <td><code>API_KEY</code></td>
           <td><ApiKeyGenerator /></td>
         </tr>
+
         <tr>
           <td><code>INTERNAL_SECRET</code></td>
           <td><InternalSecretGenerator /></td>
         </tr>
+
         <tr>
           <td><code>PORT</code></td>
           <td><code>3000</code></td>
         </tr>
+
         <tr>
           <td><code>AUTH_DIR</code></td>
           <td><code>/data/auth_info</code></td>
         </tr>
       </tbody>
     </table>
-    
+
     <Note>
-      A chave acima é gerada automaticamente pelo seu navegador para facilitar seus testes. Você pode escolher sua própria chave se preferir. 
-      
+      A chave acima é gerada automaticamente pelo seu navegador para facilitar seus testes. Você pode escolher sua própria chave se preferir.
+
       **Importante:** Guarde sua chave com segurança. Caso você a esqueça, poderá consultá-la a qualquer momento na aba **Variables** do seu projeto na Railway.
     </Note>
   </Step>
-
   <Step title="Configurar Persistência de Sessão" icon="database">
     Para não precisar escanear o QR Code toda vez que o servidor reiniciar:
+
     1. Vá na aba **Volumes** na Railway.
-    2. Clique em **+ New Volume**.
+    2. Clique em **\+ New Volume**.
     3. Defina o **Mount Path** como `/data/auth_info`.
   </Step>
-
   <Step title="Gerar Domínio Público" icon="globe">
     Para que sua API seja acessível pela internet:
+
     1. Vá na aba **Settings** do seu serviço na Railway.
     2. Procure a seção **Networking**.
     3. Clique no botão **Generate Domain**.
-    
+
     <Note>
       Isso criará uma URL terminada em `.up.railway.app` que você usará para acessar sua API. PD: Para facilitar seu teste, coloque sua URL no campo abaixo:
     </Note>
@@ -84,46 +87,29 @@ A **Railway** é a plataforma recomendada por oferecer uma infraestrutura robust
   </Step>
 </Steps>
 
-## <Icon icon="qrcode" /> Autenticação (Login)
+## <Icon icon="qrcode" iconType="sharp-regular" color="#9d4fe6" size={22} /> Autenticação (Login)
 
 Após o deploy terminar com sucesso, você precisa conectar sua conta do WhatsApp.
 
 1. Acesse no seu navegador a URL de login:
 
-```bash URL de Autenticação
+```bash
 https://seu-projeto.up.railway.app/qr?API_KEY=SUA_SENHA_SECRETA
-```
+````
+
 2. Escaneie o QR Code com seu celular.
 
 <Check>
   Uma vez conectado, a página atualizará sozinha para mostrar o status "Conectado".
 </Check>
 
-## <Icon icon="face-thinking" /> Solução de Problemas
-
-<Accordion title="Erro: No response received / Network Error">
-  Se você encontrar o erro **"no response received"** ao testar a API através desta documentação ("Try it"), isso geralmente ocorre devido a bloqueios **CORS** (Cross-Origin Resource Sharing).
-  
-  Como estamos usando sua URL personalizada, o navegador faz a requisição diretamente para o seu servidor. Para que isso funcione, seu servidor na Railway precisa permitir requisições vindas deste site de documentação.
-
-  **Como resolver:**
-  Certifique-se de que sua API retorna os seguintes headers em todas as respostas (incluindo erros e preflight `OPTIONS`):
-  
-  ```http
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Methods: GET, POST, OPTIONS
-  Access-Control-Allow-Headers: Content-Type, x-api-key
-  ```
-  
-  *Se estiver usando Node.js/Express, use o pacote `cors` para habilitar isso globalmente.*
-</Accordion>
-
-## <Icon icon="vial" /> Testando sua API
+## <Icon icon="vial" iconType="sharp-regular" color="#9d4fe6" size={22} /> Testando sua API
 
 Tente enviar uma mensagem simples usando cURL:
 
 <CodeGroup>
-```bash cURL
+
+```bash
 curl -X POST 'https://seu-projeto.up.railway.app/send' \
   -H 'x-api-key: SUA_SENHA_SECRETA' \
   -H 'Content-Type: application/json' \
@@ -133,7 +119,7 @@ curl -X POST 'https://seu-projeto.up.railway.app/send' \
   }'
 ```
 
-```javascript Node.js
+```javascript
 const axios = require('axios');
 
 axios.post('https://seu-projeto.up.railway.app/send', {
@@ -144,4 +130,5 @@ axios.post('https://seu-projeto.up.railway.app/send', {
 })
 .then(res => console.log(res.data));
 ```
+
 </CodeGroup>
