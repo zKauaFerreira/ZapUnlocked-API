@@ -9,6 +9,7 @@ async function getStatus(req, res) {
     res.json({
         status: "online",
         whatsapp: whatsappService.getStatus() ? "connected" : "disconnected",
+        qr: whatsappService.getQRCode(), // Retorna o QR code se existir (nome correto da exportação)
         timestamp: new Date().toISOString()
     });
 }

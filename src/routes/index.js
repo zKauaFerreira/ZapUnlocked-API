@@ -7,6 +7,10 @@ const getStatus = require("../controllers/status/getStatus");
  */
 
 // GET / - Status da API
+// GET / - Status da API
 router.get("/", getStatus);
+
+// GET /status - Endpoint específico para o frontend
+router.get("/status", getStatus);
 
 module.exports = router;
