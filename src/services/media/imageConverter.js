@@ -32,12 +32,13 @@ async function convertToWebP(inputPath, options = {}) {
                 break;
             case "transparent":
             case "contain":
-                vf = "scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=black@0";
+                vf = "format=rgba,scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000";
                 break;
             case "pad":
             default:
-                const color = padColor === "transparent" ? "black@0" : padColor;
-                vf = `scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=${color}`;
+                const color = padColor === "transparent" ? "#00000000" : padColor;
+                const format = (padColor === "transparent" || resizeMode === "transparent") ? "format=rgba," : "";
+                vf = `${format}scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=${color}`;
                 break;
         }
 
