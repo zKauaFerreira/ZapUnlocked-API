@@ -70,8 +70,9 @@ async function startBot() {
 
         sock.ev.on("messaging.history-set", async ({ messages }) => {
             logger.log(`📚 Sincronismo de histórico recebido: ${messages.length} mensagens.`);
-            await storage.bulkAddMessages(messages);
-            logger.log("✅ Histórico sincronizado e salvo no storage.");
+            // Desativado por solicitação do usuário para não sincronizar histórico antigo no login
+            // await storage.bulkAddMessages(messages);
+            logger.log("ℹ️ Sync inicial ignorado (salvando apenas mensagens novas).");
         });
 
         // Captura reações via evento dedicado (messages.reaction)
@@ -110,7 +111,7 @@ async function startBot() {
                     setTimeout(startBot, RECONNECT_DELAY);
                 } else {
                     logger.error("❌ Sessão inválida (401), limpando e reiniciando...");
-                    logout();
+                    logout(false); // Logout forçado por invalidez limpa dados? Geralmente sim.
                 }
             }
         });
@@ -125,10 +126,23 @@ async function startBot() {
 
                 // Tenta lidar com LID (Linked Device)
                 if (jid.includes("@lid")) {
-                    // Tenta resolver para o número real se possível.
-                    const resolved = storage.resolvePhoneFromJid(jid);
-                    if (resolved) {
-                        // Opcional: atualizar jid se necessário, mas o phone é extraído abaixo
+                    // Estrategia 1: remoteJidAlt (se disponivel no objeto raw)
+                    if (m.key.remoteJidAlt && m.key.remoteJidAlt.includes("@s.whatsapp.net")) {
+                        jid = m.key.remoteJidAlt;
+                    }
+                    // Estrategia 2: Buscar no store de contatos
+                    else if (store.contacts[jid] && store.contacts[jid].id && store.contacts[jid].id.includes("@s.whatsapp.net")) {
+                        jid = store.contacts[jid].id;
+                    }
+                    // Estrategia 3: Tentar o resolver do storage (fallback)
+                    else {
+                        const resolved = storage.resolvePhoneFromJid(jid);
+                        if (resolved) {
+                            jid = `${resolved}@s.whatsapp.net`;
+                        } else {
+                            // Ultimo recurso: Se for o proprio usuario, as vezes o LID pode ser mapeado se soubermos o nosso numero
+                            // Mas se falhar, vai salvar como LID mesmo para não perder a msg.
+                        }
                     }
                 }
 
@@ -139,7 +153,7 @@ async function startBot() {
 
                 // Atualiza Índice de Chats
                 const chatInfo = {
-                    id: jid.includes("@lid") ? `${phone}@s.whatsapp.net` : jid,
+                    id: jid.includes("@lid") ? `${phone}@s.whatsapp.net` : jid, // Força @s.whatsapp.net se resolvemos o phone
                     phone: phone,
                     name: m.pushName || store.contacts[jid]?.name || store.contacts[jid]?.notify || null,
                     lastMessageTimestamp: m.messageTimestamp?.low || m.messageTimestamp
@@ -173,9 +187,10 @@ async function startBot() {
 
 /**
  * Faz logout e limpa a sessão
+ * @param {boolean} keepData - Se true, mantém o histórico de chats (apenas desloga)
  */
-async function logout() {
-    logger.log("🗑️ Iniciando processo de logout e limpeza de sessão...");
+async function logout(keepData = false) {
+    logger.log(`🗑️ Iniciando logout... (Manter dados: ${keepData})`);
 
     try {
         if (sock) {
@@ -196,6 +211,7 @@ async function logout() {
 
     await new Promise(resolve => setTimeout(resolve, 1000));
 
+    // Apaga credenciais de sessão (ISSO SEMPRE ACONTECE NO LOGOUT)
     if (fs.existsSync(AUTH_DIR)) {
         try {
             const files = fs.readdirSync(AUTH_DIR);
@@ -211,8 +227,13 @@ async function logout() {
         } catch (err) { }
     }
 
-    // Limpa o histórico de mensagens do disco (Storage)
-    await storage.clearAllData();
+    // SÓ Limpa o histórico de mensagens se keepData for FALSE
+    if (!keepData) {
+        await storage.clearAllData();
+        logger.log("🧹 Dados de histórico apagados.");
+    } else {
+        logger.log("💾 Dados de histórico preservados.");
+    }
 
     logger.log("🔄 Reiniciando bot para novo escaneamento...");
     setTimeout(startBot, 2000);

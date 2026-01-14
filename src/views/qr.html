@@ -1,202 +1,370 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhatsApp Bot - Sessão</title>
+  <title>ZapUnlocked - WhatsApp QR</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #8b5cf6;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+    }
+
+    * {
       margin: 0;
-      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-      color: white;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 20%);
+    }
+
     .container {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.1);
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px;
       padding: 40px;
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      max-width: 500px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .qr-placeholder {
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--accent-color), #7c3aed);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+      box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(to right, #fff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .qr-wrapper {
       background: white;
       padding: 20px;
-      border-radius: 10px;
-      display: inline-block;
-      margin: 20px 0;
-      min-width: 200px;
-      min-height: 200px;
+      border-radius: 20px;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto 32px;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.05);
+      position: relative;
     }
-    .qr-placeholder img {
-      display: block;
-      max-width: 300px;
-      height: auto;
-    }
-    .status-badge {
-      display: inline-block;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 0.9em;
-      margin-bottom: 15px;
-      background: rgba(255,255,255,0.2);
-    }
-    .hidden { display: none; }
-    .loader {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    .btn-logout {
-      background: rgba(255, 68, 68, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
-      padding: 12px 25px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
+
+    .qr-wrapper img {
       width: 100%;
-      margin-top: 10px;
-      font-family: inherit;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
     }
-    .btn-logout:hover {
-      background: rgba(255, 68, 68, 0.4);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 68, 68, 0.3);
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--success-color);
+      border-radius: 99px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 20px;
     }
-    .btn-logout:active {
-      transform: translateY(0);
+
+    .status-badge.loading {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.2);
+      color: var(--warning-color);
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(currentColor, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 6px transparent;
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+    }
+
+    .timer {
+      font-family: 'Monaco', monospace;
+      color: var(--accent-color);
+      background: rgba(139, 92, 246, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    /* Botões de Ação */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      backdrop-filter: blur(4px);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Botão Sair - Manter Dados */
+    .btn-logout-keep {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-logout-keep:hover:not(:disabled) {
+      background: rgba(245, 158, 11, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Botão Desconectar - Apagar Tudo */
+    .btn-logout-wipe {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-logout-wipe:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.25);
+      transform: translateY(-1px);
     }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <div id="status-area">
-      <div class="status-badge" id="bot-status">{{STATUS_TEXT}}</div>
-      <h1 id="main-title">{{TITLE_TEXT}}</h1>
-      <p id="main-desc">{{DESC_TEXT}}</p>
+    <div class="header">
+      <div class="logo">🚀</div>
+      <h1>ZapUnlocked API</h1>
+      <p>Escaneie o QR Code para conectar</p>
     </div>
 
-    <div id="qr-area" class="{{QR_HIDDEN_CLASS}}">
-      <div class="qr-placeholder">
-        {{QR_CONTENT}}
+    <div id="status-container"></div>
+    <div id="qr-display" class="qr-wrapper">
+      <div class="status-badge loading">
+        <span class="pulse"></span>
+        Gerando QR Code...
       </div>
     </div>
 
-    <div class="instructions {{INSTR_HIDDEN_CLASS}}" id="instr-area">
-      <p><strong>Como conectar:</strong></p>
-      <ol style="text-align: left; display: inline-block; font-size: 0.9em;">
-        <li>No celular, abra o <b>WhatsApp</b></li>
-        <li>Vá em <b>Configurações</b> > <b>Aparelhos conectados</b></li>
-        <li>Toque em <b>Conectar um aparelho</b></li>
-      </ol>
-    </div>
+    <p class="timer-wrapper">Atualiza em: <span id="timer" class="timer">15s</span></p>
 
-    <div id="action-area" style="margin-top: 30px;">
-      <button id="logout-btn" onclick="handleLogout()" class="btn-logout">Desconectar Aparelho</button>
-      <div id="logout-status" class="hidden">
-        <div class="loader" style="margin: 10px auto;"></div>
-        <p>Desconectando... a página irá atualizar em breve.</p>
-      </div>
+    <div class="actions">
+      <!-- Botão: Sair mas Manter Dados -->
+      <button id="btn-keep" class="btn btn-logout-keep" onclick="logout(true)" style="display: none;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+        Sair (Manter Histórico)
+      </button>
+
+      <!-- Botão: Desconectar e Apagar Tudo -->
+      <button id="btn-wipe" class="btn btn-logout-wipe" onclick="logout(false)" style="display: none;">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+          </path>
+        </svg>
+        Desconectar (Apagar Tudo)
+      </button>
     </div>
   </div>
 
   <script>
-    const apiKey = "{{API_KEY}}";
-    const authQuery = apiKey ? "?API_KEY=" + apiKey : "";
-    let isLoggingOut = false;
-
-    async function handleLogout() {
-        if (isLoggingOut) return;
-        if (!confirm("Tem certeza que deseja desconectar e apagar a sessão atual?")) return;
-
-        isLoggingOut = true;
-        const btn = document.getElementById("logout-btn");
-        const status = document.getElementById("logout-status");
-        
-        btn.classList.add("hidden");
-        status.classList.remove("hidden");
-
-        try {
-            const resp = await fetch("/qr/logout" + authQuery, { method: "POST" });
-            if (resp.ok) {
-                console.log("Logout iniciado...");
-            }
-        } catch (err) {
-            console.error("Erro ao desconectar:", err);
-        }
-
-        // Espera 4 segundos e dá refresh
-        setTimeout(() => {
-            location.reload();
-        }, 4000);
+    // Função para obter o parâmetro API_KEY da URL
+    function getApiKey() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('API_KEY');
     }
+
+    const apiKey = getApiKey();
 
     async function checkStatus() {
-        if (isLoggingOut) return;
+      if (!apiKey) {
+        document.body.innerHTML = '<div style="color:white;text-align:center;">API KEY não fornecida na URL</div>';
+        return;
+      }
 
-        try {
-            // Polling do status da API
-            const resp = await fetch("/" + authQuery);
-            const data = await resp.json();
-            
-            // Se conectou, recarrega para mostrar a tela de sucesso total
-            if (data.whatsapp === "connected") {
-                location.reload();
-                return;
-            }
+      try {
+        const response = await fetch(`/status?API_KEY=${apiKey}`);
+        const data = await response.json();
 
-            // Se não está conectado, tenta pegar a imagem do QR
-            const qrResp = await fetch("/qr/image" + authQuery);
-            if (qrResp.ok) {
-                const blob = await qrResp.blob();
-                const url = URL.createObjectURL(blob);
-                
-                document.getElementById("qr-area").classList.remove("hidden");
-                const qrImg = document.getElementById("qr-img");
-                
-                if (qrImg) {
-                    qrImg.src = url;
-                } else {
-                    // Se antes estava o loader, troca pelo img
-                    document.querySelector(".qr-placeholder").innerHTML = '<img src="' + url + '" id="qr-img">';
-                    document.getElementById("main-title").innerText = "📲 Escaneie o QR";
-                    document.getElementById("main-desc").innerText = "Abra o WhatsApp e escaneie o código abaixo.";
-                    document.getElementById("bot-status").innerText = "Aguardando Scan";
-                    document.getElementById("instr-area").classList.remove("hidden");
-                }
-            } else if (qrResp.status === 404) {
-                // Sem QR disponível ainda
-                if (!document.getElementById("qr-img")) {
-                    document.getElementById("bot-status").innerText = "Inicializando...";
-                }
-            }
-        } catch (err) {
-            console.error("Erro no polling:", err);
+        const qrDisplay = document.getElementById('qr-display');
+        const statusContainer = document.getElementById('status-container');
+        const btnKeep = document.getElementById('btn-keep');
+        const btnWipe = document.getElementById('btn-wipe');
+        const timerInfo = document.querySelector('.timer-wrapper');
+
+        if (data.status === 'connected') {
+          qrDisplay.style.display = 'none';
+          timerInfo.style.display = 'none';
+          statusContainer.innerHTML = `
+                        <div class="status-badge">
+                            <span class="pulse"></span>
+                            Conectado
+                        </div>
+                    `;
+          // Mostra os botões de logout
+          btnKeep.style.display = 'flex';
+          btnWipe.style.display = 'flex';
+        } else {
+          statusContainer.innerHTML = '';
+          btnKeep.style.display = 'none';
+          btnWipe.style.display = 'none';
+          timerInfo.style.display = 'block';
+          qrDisplay.style.display = 'flex';
+
+          if (data.qr) {
+            // Atualiza imagem do QR
+            qrDisplay.innerHTML = `<img src="${data.qr}" alt="QR Code">`;
+          }
         }
-        
-        setTimeout(checkStatus, 5000);
+      } catch (error) {
+        console.error("Erro ao verificar status", error);
+      }
     }
 
-    // Inicia polling se não estiver conectado
-    if ("{{IS_CONNECTED}}" !== "true") {
-        setTimeout(checkStatus, 5000);
+    async function logout(keepData) {
+      if (!apiKey) return;
+
+      const btnKeep = document.getElementById('btn-keep');
+      const btnWipe = document.getElementById('btn-wipe');
+
+      const confirmMsg = keepData
+        ? "Deseja sair e manter o histórico de conversas salvo?"
+        : "ATENÇÃO: Desconectar apagará TODO o histórico de conversas salvo. Tem certeza?";
+
+      if (!confirm(confirmMsg)) return;
+
+      // Loading state
+      btnKeep.disabled = true;
+      btnWipe.disabled = true;
+      if (keepData) btnKeep.innerHTML = "Saindo...";
+      else btnWipe.innerHTML = "Apagando...";
+
+      try {
+        await fetch(`/whatsapp/qr/logout?API_KEY=${apiKey}&keepData=${keepData}`, {
+          method: 'POST'
+        });
+
+        // Recarrega após um tempo
+        setTimeout(() => {
+          location.reload();
+        }, 4000);
+
+      } catch (error) {
+        alert("Erro ao desconectar: " + error.message);
+        btnKeep.disabled = false;
+        btnWipe.disabled = false;
+      }
     }
+
+    // Loop de atualização
+    let timeLeft = 15;
+    setInterval(() => {
+      timeLeft--;
+      document.getElementById('timer').innerText = timeLeft + 's';
+      if (timeLeft <= 0) {
+        timeLeft = 15;
+        checkStatus(); // Pega novo QR ou Status
+      }
+    }, 1000);
+
+    // Check inicial
+    checkStatus();
   </script>
 </body>
+
 </html>
