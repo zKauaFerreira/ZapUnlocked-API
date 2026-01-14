@@ -14,10 +14,11 @@ async function fetchMessages(jid, limit = 20, type = "all") {
 
     logger.log(`🔍 Buscando ${limit} mensagens (${type}) para ${jid}...`);
 
-    // Busca as mensagens do store em memória
-    // Como habilitamos o syncFullHistoryLimit no constants.js, o store terá as mensagens recentes
+    // Busca as mensagens do store em memória. 
+    // Buscamos um range maior (ex: 100) para garantir que filtros (sent/received) encontrem dados suficientes.
+    const internalLimit = Math.max(100, limit * 2);
     const store = client.getStore();
-    const messages = await store.loadMessages(jid, limit);
+    const messages = await store.loadMessages(jid, internalLimit);
 
     if (!messages || messages.length === 0) {
         return {
@@ -30,46 +31,49 @@ async function fetchMessages(jid, limit = 20, type = "all") {
     // Mapa para associar reações às mensagens originais
     const reactionMap = {};
     const processedMessages = messages.map(m => {
-        const messageType = Object.keys(m.message || {})[0] || "unknown";
+        // Ignora metadados de contexto para determinar o tipo real da mensagem
+        const msgKeys = Object.keys(m.message || {}).filter(k => k !== "messageContextInfo" && k !== "senderKeyDistributionMessage");
+        const messageType = msgKeys[0] || "unknown";
         let text = "";
 
         // Extração de texto aprimorada
         const msg = m.message?.viewOnceMessage?.message || m.message?.viewOnceMessageV2?.message || m.message;
 
-        if (msg?.conversation) {
-            text = msg.conversation;
-        } else if (msg?.extendedTextMessage?.text) {
-            text = msg.extendedTextMessage.text;
-        } else if (msg?.imageMessage) {
-            text = msg.imageMessage.caption || "[image_message]";
-        } else if (msg?.videoMessage) {
-            text = msg.videoMessage.caption || "[video_message]";
-        } else if (msg?.audioMessage) {
+        // Verifica se a mensagem é um reply/context e busca o conteúdo real
+        const content = msg?.extendedTextMessage || msg;
+
+        if (content?.conversation) {
+            text = content.conversation;
+        } else if (content?.extendedTextMessage?.text || content?.text) {
+            text = content?.extendedTextMessage?.text || content?.text;
+        } else if (content?.imageMessage) {
+            text = content.imageMessage.caption || "[image_message]";
+        } else if (content?.videoMessage) {
+            text = content.videoMessage.caption || "[video_message]";
+        } else if (content?.audioMessage) {
             text = "[audio_message]";
-        } else if (msg?.stickerMessage) {
+        } else if (content?.stickerMessage) {
             text = "[sticker_message]";
-        } else if (msg?.documentMessage) {
-            text = msg.documentMessage.caption || `[document_message: ${msg.documentMessage.fileName || "arquivo"}]`;
-        } else if (msg?.contactMessage) {
-            text = `[contact_message: ${msg.contactMessage.displayName || "desconhecido"}]`;
-        } else if (msg?.locationMessage) {
+        } else if (content?.documentMessage) {
+            text = content.documentMessage.caption || `[document_message: ${content.documentMessage.fileName || "arquivo"}]`;
+        } else if (content?.contactMessage) {
+            text = `[contact_message: ${content.contactMessage.displayName || "desconhecido"}]`;
+        } else if (content?.locationMessage) {
             text = "[location_message]";
-        } else if (msg?.pollCreationMessage) {
-            text = `[poll_message: ${msg.pollCreationMessage.name}]`;
-        } else if (msg?.reactionMessage) {
-            const reaction = msg.reactionMessage;
+        } else if (content?.pollCreationMessage) {
+            text = `[poll_message: ${content.pollCreationMessage.name}]`;
+        } else if (content?.reactionMessage) {
+            const reaction = content.reactionMessage;
             if (reaction.key?.id) {
                 reactionMap[reaction.key.id] = reaction.text;
             }
             text = `[reaction: ${reaction.text || "removida"}]`;
-        } else if (msg?.buttonsMessage) {
-            text = msg.buttonsMessage.contentText || "[button_message]";
-        } else if (msg?.listMessage) {
-            text = msg.listMessage.description || "[list_message]";
-        } else if (msg?.templateMessage) {
-            text = msg.templateMessage.hydratedTemplate?.hydratedContentText || "[template_message]";
-        } else if (m.message?.messageContextInfo) {
-            text = "[message_with_context]"; // Baileys placeholder para botões/estatísticas
+        } else if (content?.buttonsMessage) {
+            text = content.buttonsMessage.contentText || "[button_message]";
+        } else if (content?.listMessage) {
+            text = content.listMessage.description || "[list_message]";
+        } else if (content?.templateMessage) {
+            text = content.templateMessage.hydratedTemplate?.hydratedContentText || "[template_message]";
         } else {
             text = `[${messageType}]`;
         }
@@ -77,27 +81,36 @@ async function fetchMessages(jid, limit = 20, type = "all") {
         // Converte timestamp
         const timestamp = m.messageTimestamp?.low || m.messageTimestamp || null;
 
+        // Identificação real de botões (evita falso-positivos de contexto)
+        const hasButtons = !!(
+            msg?.buttonsMessage ||
+            msg?.listMessage ||
+            msg?.templateMessage ||
+            msg?.buttonsResponseMessage ||
+            msg?.listResponseMessage ||
+            msg?.interactiveMessage
+        );
+
         return {
             id: m.key.id,
             fromMe: m.key.fromMe,
             pushName: m.pushName || null,
             text: text,
             timestamp: timestamp,
-            mimetype: msg?.imageMessage?.mimetype ||
-                msg?.videoMessage?.mimetype ||
-                msg?.audioMessage?.mimetype ||
-                msg?.documentMessage?.mimetype || null,
+            mimetype: content?.imageMessage?.mimetype ||
+                content?.videoMessage?.mimetype ||
+                content?.audioMessage?.mimetype ||
+                content?.documentMessage?.mimetype || null,
             type: messageType,
-            hasButtons: !!(msg?.buttonsMessage || msg?.listMessage || msg?.templateMessage || msg?.buttonsResponseMessage || m.message?.messageContextInfo),
+            hasButtons: hasButtons,
             reaction: null, // Será preenchido abaixo
-            _raw: m // Mantendo para referência interna se necessário
+            _raw: m
         };
     });
 
     // Associa as reações às mensagens (usa o cache global + local)
     const globalReactionCache = client.getReactionCache();
     processedMessages.forEach(m => {
-        // Prioridade para o que está no cache global (mais confiável em tempo real)
         const cachedReaction = globalReactionCache.get(m.id);
         if (cachedReaction) {
             m.reaction = cachedReaction;
@@ -106,47 +119,47 @@ async function fetchMessages(jid, limit = 20, type = "all") {
         }
     });
 
-    let formattedMessages = processedMessages;
+    let filteredMessages = processedMessages;
 
     // Filtros Avançados
     const { onlyReactions, reactionEmoji, query, onlyButtons } = arguments[3] || {};
 
     if (onlyReactions) {
-        formattedMessages = formattedMessages.filter(m => m.type === "reactionMessage");
+        filteredMessages = filteredMessages.filter(m => m.type === "reactionMessage");
     }
 
     if (reactionEmoji) {
-        formattedMessages = formattedMessages.filter(m => m.reaction === reactionEmoji);
+        filteredMessages = filteredMessages.filter(m => m.reaction === reactionEmoji);
     }
 
     if (query) {
-        // Suporta múltiplas palavras separadas por ;
         const queries = query.split(";").map(q => q.trim().toLowerCase()).filter(q => q);
-        formattedMessages = formattedMessages.filter(m => {
+        filteredMessages = filteredMessages.filter(m => {
             if (!m.text) return false;
-            const text = m.text.toLowerCase();
-            return queries.some(q => text.includes(q));
+            const textContent = m.text.toLowerCase();
+            return queries.some(q => textContent.includes(q));
         });
     }
 
     if (onlyButtons) {
-        formattedMessages = formattedMessages.filter(m => m.hasButtons);
+        filteredMessages = filteredMessages.filter(m => m.hasButtons);
     }
 
-    // Aplica filtro de tipo se necessário (sent/received)
+    // Aplica filtro de tipo (sent/received)
     if (type === "sent") {
-        formattedMessages = formattedMessages.filter(m => m.fromMe);
+        filteredMessages = filteredMessages.filter(m => m.fromMe);
     } else if (type === "received") {
-        formattedMessages = formattedMessages.filter(m => !m.fromMe);
+        filteredMessages = filteredMessages.filter(m => !m.fromMe);
     }
 
     // Inverte para as mais recentes virem primeiro
-    formattedMessages.reverse();
+    filteredMessages.reverse();
 
     return {
         requested: limit,
-        found: formattedMessages.length,
-        messages: formattedMessages.slice(0, limit).map(({ _raw, ...rest }) => rest)
+        found: Math.min(filteredMessages.length, limit),
+        total_found: filteredMessages.length,
+        messages: filteredMessages.slice(0, limit).map(({ _raw, ...rest }) => rest)
     };
 }
 
