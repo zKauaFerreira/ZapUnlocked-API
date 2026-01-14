@@ -29,27 +29,40 @@ async function sendVideo(req, res) {
             // 1. Baixa o vídeo
             filePath = await mediaService.downloadMedia(video_url);
 
-            // 2. Determina se deve mandar como documento (acima de 15MB)
-            const fileSize = mediaService.getFileSize(filePath);
+            // 2. Sempre converte para MP4 compatível para garantir que funcione em todos os dispositivos
+            let finalPath = filePath;
+            let convertedPath = null;
+
+            try {
+                convertedPath = await mediaService.convertToMp4(filePath);
+                finalPath = convertedPath;
+            } catch (err) {
+                logger.error("⚠️ Falha na conversão de vídeo, tentando enviar arquivo original...");
+            }
+
+            // 3. Determina se deve mandar como documento (acima de 15MB)
+            const fileSize = mediaService.getFileSize(finalPath);
             const shouldBeDoc = asDocument || fileSize > (15 * 1024 * 1024);
 
             if (shouldBeDoc) {
                 logger.log(`🎥 Vídeo grande detected (${(fileSize / 1024 / 1024).toFixed(2)}MB). Enviando como documento.`);
             }
 
-            // 3. Envia pro WhatsApp
+            // 4. Envia pro WhatsApp
             await whatsappService.sendVideoMessage(
                 jid,
-                filePath,
+                finalPath,
                 caption || "",
                 shouldBeDoc,
                 !!gifPlayback,
                 !!ptv
             );
 
-            // 4. Limpa
+            // 5. Limpa
+            if (convertedPath) mediaService.cleanup(convertedPath);
             mediaService.cleanup(filePath);
             filePath = null;
+            convertedPath = null;
         });
 
         res.json({ success: true, message: "Vídeo enviado com sucesso ✅" });
