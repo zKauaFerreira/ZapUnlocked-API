@@ -1,6 +1,6 @@
 # 📖 Documentação da ZapUnlocked-API
 
-Esta API permite o envio de mensagens e botões via WhatsApp, além do gerenciamento da sessão via QR Code.
+Esta API permite o envio de mensagens e botões via WhatsApp, além do gerenciamento da sessão via QR Code!
 
 ## 🔐 Autenticação
 
