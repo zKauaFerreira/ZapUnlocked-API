@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const getStatus = require("../controllers/status/getStatus");
 
-const apiKeyMiddleware = require("../middlewares/apiKeyMiddleware");
+const { auth } = require("../middleware/auth");
 
 /**
  * Rotas principais
@@ -12,6 +12,6 @@ const apiKeyMiddleware = require("../middlewares/apiKeyMiddleware");
 // router.get("/", getStatus);
 
 // GET /status - Endpoint específico para o frontend (Protegido)
-router.get("/status", apiKeyMiddleware, getStatus);
+router.get("/status", auth, getStatus);
 
 module.exports = router;
