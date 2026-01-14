@@ -27,44 +27,54 @@ async function fetchMessages(jid, limit = 20, type = "all") {
         };
     }
 
-    // Formata e filtra as mensagens
-    let formattedMessages = messages.map(m => {
+    // Mapa para associar reações às mensagens originais
+    const reactionMap = {};
+    const processedMessages = messages.map(m => {
         const messageType = Object.keys(m.message || {})[0] || "unknown";
         let text = "";
 
-        if (m.message?.conversation) {
-            text = m.message.conversation;
-        } else if (m.message?.extendedTextMessage?.text) {
-            text = m.message.extendedTextMessage.text;
-        } else if (m.message?.imageMessage) {
-            text = m.message.imageMessage.caption || "[image_message]";
-        } else if (m.message?.videoMessage) {
-            text = m.message.videoMessage.caption || "[video_message]";
-        } else if (m.message?.audioMessage) {
+        // Extração de texto aprimorada
+        const msg = m.message?.viewOnceMessage?.message || m.message?.viewOnceMessageV2?.message || m.message;
+
+        if (msg?.conversation) {
+            text = msg.conversation;
+        } else if (msg?.extendedTextMessage?.text) {
+            text = msg.extendedTextMessage.text;
+        } else if (msg?.imageMessage) {
+            text = msg.imageMessage.caption || "[image_message]";
+        } else if (msg?.videoMessage) {
+            text = msg.videoMessage.caption || "[video_message]";
+        } else if (msg?.audioMessage) {
             text = "[audio_message]";
-        } else if (m.message?.stickerMessage) {
+        } else if (msg?.stickerMessage) {
             text = "[sticker_message]";
-        } else if (m.message?.documentMessage) {
-            text = m.message.documentMessage.caption || `[document_message: ${m.message.documentMessage.fileName || "arquivo"}]`;
-        } else if (m.message?.contactMessage) {
-            text = `[contact_message: ${m.message.contactMessage.displayName || "desconhecido"}]`;
-        } else if (m.message?.locationMessage) {
+        } else if (msg?.documentMessage) {
+            text = msg.documentMessage.caption || `[document_message: ${msg.documentMessage.fileName || "arquivo"}]`;
+        } else if (msg?.contactMessage) {
+            text = `[contact_message: ${msg.contactMessage.displayName || "desconhecido"}]`;
+        } else if (msg?.locationMessage) {
             text = "[location_message]";
-        } else if (m.message?.pollCreationMessage) {
-            text = `[poll_message: ${m.message.pollCreationMessage.name}]`;
-        } else if (m.message?.reactionMessage) {
-            text = `[reaction: ${m.message.reactionMessage.text || "removida"}]`;
-        } else if (m.message?.buttonsMessage) {
-            text = m.message.buttonsMessage.contentText || "[button_message]";
-        } else if (m.message?.listMessage) {
-            text = m.message.listMessage.description || "[list_message]";
-        } else if (m.message?.templateMessage) {
-            text = m.message.templateMessage.hydratedTemplate?.hydratedContentText || "[template_message]";
+        } else if (msg?.pollCreationMessage) {
+            text = `[poll_message: ${msg.pollCreationMessage.name}]`;
+        } else if (msg?.reactionMessage) {
+            const reaction = msg.reactionMessage;
+            if (reaction.key?.id) {
+                reactionMap[reaction.key.id] = reaction.text;
+            }
+            text = `[reaction: ${reaction.text || "removida"}]`;
+        } else if (msg?.buttonsMessage) {
+            text = msg.buttonsMessage.contentText || "[button_message]";
+        } else if (msg?.listMessage) {
+            text = msg.listMessage.description || "[list_message]";
+        } else if (msg?.templateMessage) {
+            text = msg.templateMessage.hydratedTemplate?.hydratedContentText || "[template_message]";
+        } else if (m.message?.messageContextInfo) {
+            text = "[message_with_context]"; // Baileys placeholder para botões/estatísticas
         } else {
             text = `[${messageType}]`;
         }
 
-        // Converte timestamp (pode vir como objeto Long do Baileys)
+        // Converte timestamp
         const timestamp = m.messageTimestamp?.low || m.messageTimestamp || null;
 
         return {
@@ -73,15 +83,25 @@ async function fetchMessages(jid, limit = 20, type = "all") {
             pushName: m.pushName || null,
             text: text,
             timestamp: timestamp,
-            mimetype: m.message?.imageMessage?.mimetype ||
-                m.message?.videoMessage?.mimetype ||
-                m.message?.audioMessage?.mimetype ||
-                m.message?.documentMessage?.mimetype || null,
+            mimetype: msg?.imageMessage?.mimetype ||
+                msg?.videoMessage?.mimetype ||
+                msg?.audioMessage?.mimetype ||
+                msg?.documentMessage?.mimetype || null,
             type: messageType,
-            hasButtons: !!(m.message?.buttonsMessage || m.message?.listMessage || m.message?.templateMessage || m.message?.buttonsResponseMessage),
-            reaction: m.message?.reactionMessage?.text || null
+            hasButtons: !!(msg?.buttonsMessage || msg?.listMessage || msg?.templateMessage || msg?.buttonsResponseMessage || m.message?.messageContextInfo),
+            reaction: null, // Será preenchido abaixo
+            _raw: m // Mantendo para referência interna se necessário
         };
     });
+
+    // Associa as reações às mensagens
+    processedMessages.forEach(m => {
+        if (reactionMap[m.id]) {
+            m.reaction = reactionMap[m.id];
+        }
+    });
+
+    let formattedMessages = processedMessages;
 
     // Filtros Avançados
     const { onlyReactions, reactionEmoji, query, onlyButtons } = arguments[3] || {};
@@ -95,8 +115,13 @@ async function fetchMessages(jid, limit = 20, type = "all") {
     }
 
     if (query) {
-        const q = query.toLowerCase();
-        formattedMessages = formattedMessages.filter(m => m.text && m.text.toLowerCase().includes(q));
+        // Suporta múltiplas palavras separadas por ;
+        const queries = query.split(";").map(q => q.trim().toLowerCase()).filter(q => q);
+        formattedMessages = formattedMessages.filter(m => {
+            if (!m.text) return false;
+            const text = m.text.toLowerCase();
+            return queries.some(q => text.includes(q));
+        });
     }
 
     if (onlyButtons) {
@@ -110,16 +135,17 @@ async function fetchMessages(jid, limit = 20, type = "all") {
         formattedMessages = formattedMessages.filter(m => !m.fromMe);
     }
 
-    // Inverte para as mais recentes virem primeiro se necessário
-    // Baileys geralmente retorna cronológico (mais antigas primeiro)
+    // Inverte para as mais recentes virem primeiro
     formattedMessages.reverse();
 
     return {
         requested: limit,
         found: formattedMessages.length,
-        messages: formattedMessages.slice(0, limit)
+        messages: formattedMessages.slice(0, limit).map(({ _raw, ...rest }) => rest)
     };
 }
+
+
 
 /**
  * Obtém os contatos recentes da sessão atual
@@ -152,7 +178,9 @@ function getRecentChats(limit = 20) {
             unreadCount: c.unreadCount || 0,
             lastMessageTimestamp: timestamp
         };
-    }).sort((a, b) => (b.lastMessageTimestamp || 0) - (a.lastMessageTimestamp || 0));
+    })
+        .filter(c => c.id.endsWith("@s.whatsapp.net") || c.id.endsWith("@g.us")) // Filtra LIDs
+        .sort((a, b) => (b.lastMessageTimestamp || 0) - (a.lastMessageTimestamp || 0));
 
     return formattedChats.slice(0, limit);
 }
