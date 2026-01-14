@@ -220,6 +220,89 @@
       background: rgba(239, 68, 68, 0.25);
       transform: translateY(-1px);
     }
+
+    /* Pairing UI */
+    .pairing-section {
+      margin-top: 24px;
+      width: 100%;
+      border-top: 1px solid var(--border-color);
+      padding-top: 24px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .pairing-container {
+      animation: slideUp 0.3s ease;
+      margin-top: 16px;
+    }
+
+    .pair-instruction {
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .pair-input-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .input-field {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0 16px;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-color);
+    }
+
+    .btn-primary-small {
+      background: var(--accent-color);
+      color: white;
+      width: auto;
+      padding: 0 24px;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-primary-small:hover {
+      background: #7c3aed;
+      transform: translateY(-1px);
+    }
+
+    .pair-result {
+      margin-top: 20px;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pair-code {
+      font-family: 'Monaco', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--success-color);
+      text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 
@@ -242,21 +325,18 @@
     <p class="timer-wrapper">Atualiza em: <span id="timer" class="timer">15s</span></p>
 
     <!-- Seção de Pairing Code -->
-    <div id="pairing-section" style="margin-top: 20px; width: 100%;">
-      <button id="toggle-pair-btn" class="btn" onclick="togglePairing()"
-        style="background: rgba(255,255,255,0.1); margin-bottom: 15px;">
+    <div id="pairing-section" class="pairing-section">
+      <button id="toggle-pair-btn" class="btn btn-secondary" onclick="togglePairing()">
         Usar Código de Pareamento
       </button>
 
-      <div id="pairing-container" style="display: none; animation: slideUp 0.3s ease;">
-        <p style="margin-bottom: 10px; font-size: 14px;">Digite o número com código do país (ex: 5511...)</p>
-        <div style="display: flex; gap: 8px; justify-content: center;">
-          <input type="tel" id="pair-phone" placeholder="5511999999999"
-            style="padding: 10px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; width: 70%;">
-          <button onclick="requestPairing()" class="btn"
-            style="width: auto; padding: 10px; background: var(--accent-color);">Ir</button>
+      <div id="pairing-container" class="pairing-container" style="display: none;">
+        <p class="pair-instruction">Digite o número com código do país (ex: 5511...)</p>
+        <div class="pair-input-group">
+          <input type="tel" id="pair-phone" class="input-field" placeholder="5511999999999">
+          <button onclick="requestPairing()" class="btn btn-primary-small">Ir</button>
         </div>
-        <div id="pair-result" style="margin-top: 15px; min-height: 40px;"></div>
+        <div id="pair-result" class="pair-result"></div>
       </div>
     </div>
 
@@ -388,10 +468,8 @@
 
         if (json.success) {
           resultDiv.innerHTML = `
-                    <div style="margin-top:10px; font-size: 24px; letter-spacing: 2px; color: var(--success-color); font-weight:bold;">
-                        ${json.code}
-                    </div>
-                    <p style="font-size:12px; margin-top:5px; color:#ccc">Digite este código no seu WhatsApp</p>
+                    <div class="pair-code">${json.code}</div>
+                    <p style="font-size:12px; color:var(--text-secondary)">Digite este código no seu WhatsApp</p>
                 `;
         } else {
           resultDiv.innerHTML = `<span style="color:var(--danger-color)">Erro: ${json.error}</span>`;

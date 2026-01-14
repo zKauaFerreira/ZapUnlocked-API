@@ -41,7 +41,7 @@ module.exports = {
   DATA_DIR: dataDir, // Exporta o diretório de dados oficial
   TEMP_DIR: tempDir,
   WHATSAPP_CONFIG: {
-    browser: ["ZapUnlocked API", "Opera GX", "120.0.5543.204"],
+    browser: ["ZapUnlocked", "Chrome", "20.0.04"],
     printQRInTerminal: false,
     generateHighQualityLinkPreview: true,
     markOnlineOnConnect: true,
