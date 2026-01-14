@@ -14,10 +14,10 @@ async function fetchMessages(jid, limit = 20, type = "all") {
 
     logger.log(`🔍 Buscando ${limit} mensagens (${type}) para ${jid}...`);
 
-    // Busca as mensagens do servidor do WhatsApp
-    // Nota: O método exacto pode variar conforme a versão do Baileys, 
-    // fetchMessagesFromWA é geralmente o padrão para busca sob demanda.
-    const messages = await sock.fetchMessagesFromWA(jid, limit);
+    // Busca as mensagens do store em memória
+    // Como habilitamos o syncFullHistoryLimit no constants.js, o store terá as mensagens recentes
+    const store = client.getStore();
+    const messages = await store.loadMessages(jid, limit);
 
     if (!messages || messages.length === 0) {
         return {

@@ -30,8 +30,8 @@ module.exports = {
     generateHighQualityLinkPreview: true,
     markOnlineOnConnect: true,
     syncFullHistory: false,
-    syncFullHistoryLimit: 0,
-    shouldSyncHistoryMessage: () => false
+    syncFullHistoryLimit: 100, // Sincroniza apenas os mais recentes
+    shouldSyncHistoryMessage: () => true
   },
   RECONNECT_DELAY: 5000
 };
