@@ -225,6 +225,8 @@ async function sendDocumentMessage(jid, filePath, fileName, mimetype) {
   });
 }
 
+const { Sticker, StickerTypes } = require("wa-sticker-formatter");
+
 /**
  * Envia uma figurinha (sticker) via WhatsApp
  * @param {string} jid - JID do destinatário
@@ -239,10 +241,18 @@ async function sendStickerMessage(jid, stickerPath, pack, author) {
     throw new Error("WhatsApp não está conectado");
   }
 
+  // Cria o sticker com metadados usando wa-sticker-formatter
+  const sticker = new Sticker(fs.readFileSync(stickerPath), {
+    pack: pack || "ZapUnlocked",
+    author: author || "API",
+    type: StickerTypes.FULL,
+    quality: 100
+  });
+
+  const buffer = await sticker.toBuffer();
+
   return await sock.sendMessage(jid, {
-    sticker: fs.readFileSync(stickerPath),
-    packname: pack || "ZapUnlocked",
-    author: author || "API"
+    sticker: buffer
   });
 }
 
