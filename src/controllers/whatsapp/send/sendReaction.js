@@ -17,8 +17,9 @@ async function sendReaction(req, res) {
     const identifier = reaction || messageId || text;
     const identificationType = type || (text && !messageId ? "text" : "id");
 
-    if (!phone || !identifier || !emoji) {
-        return res.status(400).json({ error: "phone, (reaction ou messageId) e emoji são obrigatórios" });
+    // Permite emoji vazio para REMOVER a reação
+    if (!phone || !identifier || emoji === undefined) {
+        return res.status(400).json({ error: "phone, (reaction ou messageId) e emoji são obrigatórios (envie emoji vazio para remover)" });
     }
 
     try {

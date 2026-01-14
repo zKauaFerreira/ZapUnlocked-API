@@ -239,5 +239,45 @@ module.exports = {
     getHistory,
     resolvePhoneFromJid,
     clearAllData,
-    bulkAddMessages
+    bulkAddMessages,
+    updateMessageReaction
 };
+
+/**
+ * Atualiza a reação de uma mensagem no histórico
+ * @param {string} phone - Número do chat
+ * @param {string} targetId - ID da mensagem alvo
+ * @param {string} reaction - Emoji da reação (ou null/vazio para remover)
+ */
+async function updateMessageReaction(phone, targetId, reaction) {
+    if (!phone || !targetId) return;
+
+    const fileName = `${phone}.json.gz`;
+    const filePath = path.join(CHATS_DIR, fileName);
+
+    try {
+        if (!fs.existsSync(filePath)) return;
+
+        const buffer = fs.readFileSync(filePath);
+        const decompressed = await gunzip(buffer);
+        let history = JSON.parse(decompressed.toString());
+
+        const msgIndex = history.findIndex(m => m.key.id === targetId);
+
+        if (msgIndex !== -1) {
+            // Atualiza ou remove o campo reaction na mensagem original
+            if (reaction) {
+                history[msgIndex].reaction = reaction;
+            } else {
+                delete history[msgIndex].reaction;
+            }
+
+            // Salva apenas se achou
+            const stringified = JSON.stringify(history);
+            const compressed = await gzip(stringified);
+            fs.writeFileSync(filePath, compressed);
+        }
+    } catch (err) {
+        logger.error(`❌ Erro ao atualizar reação em ${phone}:`, err.message);
+    }
+}
