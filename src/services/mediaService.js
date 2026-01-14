@@ -110,6 +110,37 @@ async function downloadMedia(url) {
 }
 
 /**
+ * Converte um arquivo de áudio para OGG/Opus (formato nativo do WhatsApp)
+ * @param {string} inputPath - Caminho do arquivo original
+ * @returns {Promise<string>} - Caminho do novo arquivo .ogg
+ */
+async function convertToOgg(inputPath) {
+    const outputPath = inputPath.replace(path.extname(inputPath), ".ogg");
+    logger.log(`🔄 Convertendo áudio para OGG/Opus: ${path.basename(inputPath)} -> ${path.basename(outputPath)}`);
+
+    return new Promise((resolve, reject) => {
+        ffmpeg(inputPath)
+            .noVideo()
+            .audioChannels(1)
+            .audioFrequency(48000)
+            .audioCodec("libopus")
+            .toFormat("ogg")
+            .addOptions([
+                "-avoid_negative_ts", "make_zero"
+            ])
+            .on("end", () => {
+                logger.log("✅ Conversão concluída com sucesso");
+                resolve(outputPath);
+            })
+            .on("error", (err) => {
+                logger.error("❌ Erro na conversão de áudio:", err.message);
+                reject(err);
+            })
+            .save(outputPath);
+    });
+}
+
+/**
  * Converte uma imagem para WebP (formato de sticker do WhatsApp - 512x512)
  * @param {string} inputPath - Caminho do arquivo original
  * @returns {Promise<string>} - Caminho do arquivo .webp
@@ -164,6 +195,8 @@ function getFileSize(filePath) {
 }
 
 module.exports = {
+    downloadMedia,
+    cleanup: cleanupLocal,
     getFileSize,
     convertToOgg,
     convertToWebP
