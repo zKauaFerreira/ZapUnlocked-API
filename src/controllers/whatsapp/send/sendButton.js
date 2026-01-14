@@ -1,5 +1,6 @@
 const whatsappService = require("../../../services/whatsapp");
 const logger = require("../../../utils/logger");
+const { formatText } = require("../../../utils/formatter");
 const { createCallbackPayload } = require("../../../utils/callbackUtils");
 
 /**
@@ -56,7 +57,10 @@ async function sendWithButtons(req, res) {
             }
         }
 
-        await whatsappService.sendButtonMessage(jid, message, button_text, buttonId, options);
+        const formattedMessage = formatText(message, { phone });
+        const formattedButtonText = formatText(button_text, { phone });
+
+        await whatsappService.sendButtonMessage(jid, formattedMessage, formattedButtonText, buttonId, options);
 
         res.json({ success: true, message: "Mensagem com botão enviada ✅" });
     } catch (err) {

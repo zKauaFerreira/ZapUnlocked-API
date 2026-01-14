@@ -1,6 +1,8 @@
 const whatsappService = require("../../../services/whatsapp");
 const logger = require("../../../utils/logger");
 
+const { formatText } = require("../../../utils/formatter");
+
 /**
  * Envia mensagem de texto via WhatsApp
  * @param {Object} req - Request
@@ -45,7 +47,8 @@ async function sendMessage(req, res) {
             }
         }
 
-        await whatsappService.sendMessage(jid, message, options);
+        const formattedMessage = formatText(message, { phone });
+        await whatsappService.sendMessage(jid, formattedMessage, options);
 
         res.json({ success: true, message: "Mensagem enviada ✅" });
     } catch (err) {

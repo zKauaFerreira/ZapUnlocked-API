@@ -1,36 +1,6 @@
 const { getSock } = require("../../../services/whatsapp/client");
 const logger = require("../../../utils/logger");
-
-/**
- * Formata data baseada no template do usuário
- * Ex: {{day/mon/yea - hou:min}} -> 14/01/2026 - 16:30
- */
-function formatStatus(text) {
-    if (!text) return text;
-
-    const now = new Date();
-
-    // Mapa de substituição
-    const map = {
-        "day": String(now.getDate()).padStart(2, "0"),
-        "mon": String(now.getMonth() + 1).padStart(2, "0"),
-        "yea": String(now.getFullYear()),
-        "hou": String(now.getHours()).padStart(2, "0"),
-        "min": String(now.getMinutes()).padStart(2, "0"),
-        "sec": String(now.getSeconds()).padStart(2, "0")
-    };
-
-    // Regex para capturar conteúdo dentro de {{...}}
-    return text.replace(/{{(.*?)}}/g, (match, content) => {
-        let result = content;
-        // Substitui cada palavra chave conhecida mantendo os separadores
-        Object.keys(map).forEach(key => {
-            const regex = new RegExp(key, "g");
-            result = result.replace(regex, map[key]);
-        });
-        return result;
-    });
-}
+const { formatText } = require("../../../utils/formatter");
 
 exports.updatePrivacy = async (req, res) => {
     try {
@@ -98,7 +68,7 @@ exports.updatePrivacy = async (req, res) => {
         // --- Atualização de Perfil (About) ---
 
         if (about) {
-            const formattedAbout = formatStatus(about);
+            const formattedAbout = formatText(about);
             await sock.updateProfileStatus(formattedAbout);
             updates.push(`Recado/About alterado para: "${formattedAbout}"`);
             updatedCount++;
