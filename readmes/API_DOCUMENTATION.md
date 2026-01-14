@@ -153,7 +153,43 @@ Retorna lista de contatos com atividade recente.
 
 ---
 
-## 🔗 Webhook Global (Integração)
+## 🛡️ Configurações & Privacidade
+
+### 1️⃣ Atualizar Privacidade e Perfil
+Altera configurações de privacidade e o recado (status) do perfil.
+Suporta variáveis de data/hora dinâmicas no recado.
+
+- **URL:** `/settings/privacy`
+- **Método:** `POST`
+- **Body (Todos opcionais, envie ao menos um):**
+```json
+{
+  "lastSeen": "contacts",     // "all", "contacts", "contact_blacklist", "none"
+  "online": "match_last_seen",// "all", "match_last_seen"
+  "readReceipts": "none",     // "all", "none" (Confirmação de Leitura)
+  "profilePicture": "contacts",// "all", "contacts", "contact_blacklist", "none"
+  "status": "contacts",       // Privacidade dos Stories
+  "groupsAdd": "contacts",    // Quem pode adicionar em grupos
+  "defaultDisappearingMode": 86400, // Mensagens temporárias (segundos) ou 0 para off
+  
+  // Recado do Perfil (Suporta placeholders)
+  "about": "Online desde: {{day/mon/yea - hou:min}}" 
+}
+```
+**Placeholders de Data:**
+*   `{{day}}`, `{{mon}}`, `{{yea}}`: Dia, Mês, Ano
+*   `{{hou}}`, `{{min}}`, `{{sec}}`: Hora, Minuto, Segundo
+
+### 2️⃣ Bloquear/Desbloquear Usuário
+- **URL:** `/settings/block`
+- **Método:** `POST`
+- **Body:**
+```json
+{
+  "phone": "5511999999999",
+  "action": "block" // "block" ou "unblock"
+}
+```
 
 Permite configurar um webhook único que receberá todas as mensagens recebidas pelo bot.
 
@@ -177,6 +213,12 @@ Define a URL e parâmetros. Cria o arquivo de configuração e ativa o envio.
   "enabled": true
 }
 ```
+
+#### Variáveis disponíveis para o Webhook:
+*   `{{from}}` / `{{phone}}`: Número do remetente (ex: `551199...`)
+*   `{{text}}`: Conteúdo da mensagem
+*   `{{id}}`: ID único da mensagem do WhatsApp
+*   `{{timestamp}}`: Data/hora do evento (ISO)
 
 ### 2️⃣ Alternar Status (On/Off)
 Ativa ou desativa o envio sem perder a configuração.
