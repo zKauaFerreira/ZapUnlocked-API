@@ -226,6 +226,23 @@ async function sendDocumentMessage(jid, filePath, fileName, mimetype) {
 }
 
 /**
+ * Envia uma figurinha (sticker) via WhatsApp
+ * @param {string} jid - JID do destinatário
+ * @param {string} stickerPath - Caminho local do arquivo .webp
+ * @returns {Promise<Object>}
+ */
+async function sendStickerMessage(jid, stickerPath) {
+  logger.log(`📡 Enviando figurinha para ${jid}`);
+  if (!sock || !isReady) {
+    throw new Error("WhatsApp não está conectado");
+  }
+
+  return await sock.sendMessage(jid, {
+    sticker: fs.readFileSync(stickerPath)
+  });
+}
+
+/**
  * Verifica se o WhatsApp está pronto
  * @returns {boolean}
  */
@@ -324,6 +341,7 @@ module.exports = {
   sendAudioMessage,
   sendVideoMessage,
   sendDocumentMessage,
+  sendStickerMessage,
   getStatus,
   getSocket,
   getQRCode,

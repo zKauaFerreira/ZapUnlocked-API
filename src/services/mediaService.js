@@ -110,30 +110,26 @@ async function downloadMedia(url) {
 }
 
 /**
- * Converte um arquivo de áudio para OGG/Opus (formato nativo do WhatsApp)
+ * Converte uma imagem para WebP (formato de sticker do WhatsApp - 512x512)
  * @param {string} inputPath - Caminho do arquivo original
- * @returns {Promise<string>} - Caminho do novo arquivo .ogg
+ * @returns {Promise<string>} - Caminho do arquivo .webp
  */
-async function convertToOgg(inputPath) {
-    const outputPath = inputPath.replace(path.extname(inputPath), ".ogg");
-    logger.log(`🔄 Convertendo áudio para OGG/Opus: ${path.basename(inputPath)} -> ${path.basename(outputPath)}`);
+async function convertToWebP(inputPath) {
+    const outputPath = inputPath.replace(path.extname(inputPath), ".webp");
+    logger.log(`🔄 Convertendo imagem para WebP (Sticker): ${path.basename(inputPath)} -> ${path.basename(outputPath)}`);
 
     return new Promise((resolve, reject) => {
         ffmpeg(inputPath)
-            .noVideo()
-            .audioChannels(1)
-            .audioFrequency(48000)
-            .audioCodec("libopus")
-            .toFormat("ogg")
-            .addOptions([
-                "-avoid_negative_ts", "make_zero"
-            ])
+            .size("512x512")
+            .aspect("1:1")
+            .autoPad(true, "transparent")
+            .toFormat("webp")
             .on("end", () => {
-                logger.log("✅ Conversão concluída com sucesso");
+                logger.log("✅ Conversão para WebP concluída com sucesso");
                 resolve(outputPath);
             })
             .on("error", (err) => {
-                logger.error("❌ Erro na conversão de áudio:", err.message);
+                logger.error("❌ Erro na conversão para WebP:", err.message);
                 reject(err);
             })
             .save(outputPath);
@@ -168,8 +164,7 @@ function getFileSize(filePath) {
 }
 
 module.exports = {
-    downloadMedia,
-    cleanup: cleanupLocal,
     getFileSize,
-    convertToOgg
+    convertToOgg,
+    convertToWebP
 };
