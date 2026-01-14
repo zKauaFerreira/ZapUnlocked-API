@@ -229,16 +229,20 @@ async function sendDocumentMessage(jid, filePath, fileName, mimetype) {
  * Envia uma figurinha (sticker) via WhatsApp
  * @param {string} jid - JID do destinatário
  * @param {string} stickerPath - Caminho local do arquivo .webp
+ * @param {string} pack - Nome do pacote de figurinhas (opcional)
+ * @param {string} author - Autor da figurinha (opcional)
  * @returns {Promise<Object>}
  */
-async function sendStickerMessage(jid, stickerPath) {
-  logger.log(`📡 Enviando figurinha para ${jid}`);
+async function sendStickerMessage(jid, stickerPath, pack, author) {
+  logger.log(`📡 Enviando figurinha para ${jid} (Pack: ${pack || "padrão"}, Author: ${author || "padrão"})`);
   if (!sock || !isReady) {
     throw new Error("WhatsApp não está conectado");
   }
 
   return await sock.sendMessage(jid, {
-    sticker: fs.readFileSync(stickerPath)
+    sticker: fs.readFileSync(stickerPath),
+    packname: pack || "ZapUnlocked",
+    author: author || "API"
   });
 }
 

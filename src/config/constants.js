@@ -21,10 +21,7 @@ console.log(`📁 Diretório temporário: ${path.resolve(tempDir)}`);
 module.exports = {
   PORT: process.env.PORT || 3000,
   API_KEY: process.env.API_KEY,
-  INTERNAL_SECRET: process.env.INTERNAL_SECRET || (() => {
-    console.warn("⚠️ AVISO: INTERNAL_SECRET não definida. Usando valor padrão (NÃO RECOMENDADO EM PRODUÇÃO).");
-    return "zap-unlocked-secret-default-change-me-danger";
-  })(),
+  INTERNAL_SECRET: process.env.INTERNAL_SECRET,
   AUTH_DIR: authDir,
   TEMP_DIR: path.join(__dirname, "..", "..", "temp_media"),
   WHATSAPP_CONFIG: {

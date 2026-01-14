@@ -9,7 +9,7 @@ const logger = require("../../../utils/logger");
  * @param {Object} res - Response
  */
 async function sendSticker(req, res) {
-    const { phone, image_url } = req.body;
+    const { phone, image_url, pack, author } = req.body;
     logger.log(`🔍 Request recebida em /send_sticker para ${phone}`);
 
     if (!whatsappService.getStatus()) {
@@ -37,7 +37,7 @@ async function sendSticker(req, res) {
 
             // 3. Envia pro WhatsApp
             logger.log(`📤 Enviando sticker para ${phone}...`);
-            await whatsappService.sendStickerMessage(jid, stickerPath);
+            await whatsappService.sendStickerMessage(jid, stickerPath, pack, author);
 
             // 4. Limpa os arquivos
             if (filePath) mediaService.cleanup(filePath);
