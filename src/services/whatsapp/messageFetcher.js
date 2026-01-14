@@ -1,5 +1,6 @@
 const logger = require("../../utils/logger");
 const client = require("./client");
+const storage = require("./storage");
 
 /**
  * Busca mensagens do WhatsApp sob demanda
@@ -14,11 +15,8 @@ async function fetchMessages(jid, limit = 20, type = "all") {
 
     logger.log(`🔍 Buscando ${limit} mensagens (${type}) para ${jid}...`);
 
-    // Busca as mensagens do store em memória. 
-    // Buscamos um range maior (ex: 100) para garantir que filtros (sent/received) encontrem dados suficientes.
-    const internalLimit = Math.max(100, limit * 2);
-    const store = client.getStore();
-    const messages = await store.loadMessages(jid, internalLimit);
+    const phone = jid.split("@")[0];
+    const messages = await storage.getHistory(phone);
 
     if (!messages || messages.length === 0) {
         return {
@@ -81,7 +79,7 @@ async function fetchMessages(jid, limit = 20, type = "all") {
         // Converte timestamp
         const timestamp = m.messageTimestamp?.low || m.messageTimestamp || null;
 
-        // Identificação real de botões (evita falso-positivos de contexto)
+        // Identificação real de botões
         const hasButtons = !!(
             msg?.buttonsMessage ||
             msg?.listMessage ||
@@ -163,44 +161,14 @@ async function fetchMessages(jid, limit = 20, type = "all") {
     };
 }
 
-
-
 /**
  * Obtém os contatos recentes da sessão atual
  * @param {number} limit - Quantidade máxima de contatos
  * @returns {Array}
  */
 function getRecentChats(limit = 20) {
-    const store = client.getStore();
-    if (!store) return [];
-
-    // O store.chats contém os metadados dos chats sincronizados na sessão
-    const chats = store.chats.all();
-
-    const formattedChats = chats.map(c => {
-        const store = client.getStore();
-        // Se for LID, tenta achar o JID real no store.contacts
-        let id = c.id;
-        let phone = id.split("@")[0];
-
-        // No Baileys, LID e JID são diferentes. Se for LID, o "nome" ou metadados podem estar no store.contacts
-        const contact = store.contacts[id];
-
-        // Converte timestamp
-        const timestamp = c.conversationTimestamp?.low || c.conversationTimestamp || null;
-
-        return {
-            id: id,
-            phone: phone,
-            name: c.name || contact?.name || contact?.verifiedName || contact?.notify || null,
-            unreadCount: c.unreadCount || 0,
-            lastMessageTimestamp: timestamp
-        };
-    })
-        .filter(c => c.id.endsWith("@s.whatsapp.net") || c.id.endsWith("@g.us")) // Filtra LIDs
-        .sort((a, b) => (b.lastMessageTimestamp || 0) - (a.lastMessageTimestamp || 0));
-
-    return formattedChats.slice(0, limit);
+    const chats = storage.getRecentChatsFromIndex();
+    return chats.slice(0, limit);
 }
 
 module.exports = {

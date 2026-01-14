@@ -10,21 +10,19 @@ const path = require("path");
 const { AUTH_DIR, WHATSAPP_CONFIG, RECONNECT_DELAY } = require("../../config/constants");
 const { handleMessage } = require("../../handlers/messageHandler");
 const logger = require("../../utils/logger");
+const storage = require("./storage");
 
 let sock = null;
 let isReady = false;
 let currentQR = null;
 
-// Store em memória para contatos recentes
+// Store em memória (mantido para contatos e metadados, mas mensagens vão para storage)
 const store = makeInMemoryStore({});
 
 // Cache global de reações (messageId -> emoji)
 const reactionCache = new Map();
 
-// Limite de mensagens por chat no store para economizar RAM
-const MAX_MESSAGES_PER_CHAT = 100;
-const MAX_CHATS_IN_STORE = 2000;
-const MAX_REACTIONS_IN_CACHE = 5000; // Limite para evitar estouro de memória
+const MAX_REACTIONS_IN_CACHE = 5000;
 
 /**
  * Armazena uma reação no cache global
@@ -45,35 +43,6 @@ function storeReaction(targetId, emoji) {
     }
 
     reactionCache.set(targetId, emoji);
-}
-
-/**
- * Pruna o store para evitar consumo excessivo de RAM
- */
-function pruneStore() {
-    try {
-        const chats = store.chats.all();
-        if (chats.length > MAX_CHATS_IN_STORE) {
-            // Apenas loga se houver excesso, o Baileys gerencia o store.chats.
-        }
-
-        // Limpa mensagens antigas de todos os chats no store
-        for (const jid in store.messages) {
-            const msgs = store.messages[jid];
-            if (msgs) {
-                if (Array.isArray(msgs) && msgs.length > MAX_MESSAGES_PER_CHAT) {
-                    store.messages[jid] = msgs.slice(-MAX_MESSAGES_PER_CHAT);
-                } else if (typeof msgs.length === "number" && msgs.length > MAX_MESSAGES_PER_CHAT) {
-                    // Caso seja algo que tenha .length mas use outros métodos para remoção (ex: KeyedDB)
-                    if (typeof msgs.splice === "function") {
-                        msgs.splice(0, msgs.length - MAX_MESSAGES_PER_CHAT);
-                    }
-                }
-            }
-        }
-    } catch (err) {
-        logger.error("⚠️ Erro ao prunar store:", err.message);
-    }
 }
 
 /**
@@ -110,7 +79,6 @@ async function startBot() {
                 const emoji = r.reaction?.text;
                 if (targetId) {
                     storeReaction(targetId, emoji);
-                    // logger.log(`🎭 Reação capturada (evento): ${emoji} para msg ${targetId}`);
                 }
             }
         });
@@ -148,35 +116,43 @@ async function startBot() {
         sock.ev.on("messages.upsert", async (msgUpsert) => {
             // Log para debug de mensagens em tempo real
             for (const m of msgUpsert.messages) {
-                const jid = m.key.remoteJid;
-                if (jid) {
-                    // Fallback manual: garante que a mensagem entre no store
-                    if (!store.messages[jid]) store.messages[jid] = [];
+                let jid = m.key.remoteJid;
 
-                    let msgs = store.messages[jid];
+                // Ignora status/broadcasts
+                if (jid === "status@broadcast") continue;
 
-                    // Garante que msgs seja um array antes de usar .find
-                    if (Array.isArray(msgs)) {
-                        const exists = msgs.find(x => x.key.id === m.key.id);
-                        if (!exists) {
-                            msgs.push(m);
-                        }
-                    } else if (msgs && typeof msgs.toArray === "function") {
-                        // Caso seja um KeyedDB ou estrutura similar do Baileys
-                        const allMsgs = msgs.toArray ? msgs.toArray() : [];
-                        const exists = allMsgs.find(x => x.key.id === m.key.id);
-                        if (!exists) {
-                            if (typeof msgs.insert === "function") {
-                                msgs.insert(m);
-                            }
-                        }
+                // Tenta lidar com LID (Linked Device)
+                if (jid.includes("@lid")) {
+                    // Tenta resolver para o número real se possível.
+                    const resolved = storage.resolvePhoneFromJid(jid);
+                    if (resolved) {
+                        // Opcional: atualizar jid se necessário, mas o phone é extraído abaixo
                     }
-
-                    const after = store.messages[jid]?.length || 0;
-                    logger.log(`📩 Evento UPSERT: ${jid} (fromMe: ${m.key.fromMe || "false"}). Msg no store depois: ${after}`);
                 }
 
-                // Também captura reações que chegam como mensagens normais (reactionMessage)
+                const phone = jid.split("@")[0];
+
+                // Salva no Storage (GZIP)
+                await storage.addMessageToHistory(phone, m);
+
+                // Atualiza Índice de Chats
+                const chatInfo = {
+                    id: jid.includes("@lid") ? `${phone}@s.whatsapp.net` : jid,
+                    phone: phone,
+                    name: m.pushName || store.contacts[jid]?.name || store.contacts[jid]?.notify || null,
+                    lastMessageTimestamp: m.messageTimestamp?.low || m.messageTimestamp
+                };
+                await storage.saveChatIndex(chatInfo);
+
+                logger.log(`📩 UPSERT salvo no storage: ${phone} (Tipo: ${Object.keys(m.message || {})[0]})`);
+
+                const jidLog = m.key.remoteJid;
+                if (jidLog) {
+                    const after = (await storage.getHistory(phone)).length;
+                    logger.log(`📩 UPSERT: ${jidLog}. Total no arquivo: ${after}`);
+                }
+
+                // Captura reações que chegam como mensagens normais
                 const reaction = m.message?.reactionMessage;
                 if (reaction) {
                     const targetId = reaction.key?.id;
@@ -186,7 +162,6 @@ async function startBot() {
             }
 
             await handleMessage(sock, msgUpsert);
-            pruneStore(); // Limpa RAM após novas mensagens
         });
     } catch (error) {
         logger.error("❌ Erro ao iniciar bot:", error.message);
@@ -233,6 +208,9 @@ async function logout() {
             } catch (err) { }
         } catch (err) { }
     }
+
+    // Limpa o histórico de mensagens do disco (Storage)
+    await storage.clearAllData();
 
     logger.log("🔄 Reiniciando bot para novo escaneamento...");
     setTimeout(startBot, 2000);
