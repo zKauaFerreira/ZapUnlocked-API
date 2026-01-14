@@ -154,12 +154,26 @@ async function findMessage(jid, identifier, type = "id") {
         // Busca a mais recente que contenha o texto exato
         // Como o getHistory retorna ordenado (antigo -> novo), invertemos para pegar o mais recente
         return [...msgs].reverse().find(m => {
-            const text = m.message?.conversation ||
-                m.message?.extendedTextMessage?.text ||
-                m.message?.imageMessage?.caption ||
-                m.message?.videoMessage?.caption || "";
+            // Lógica de extração de texto robusta (igual ao messageFetcher)
+            const msg = m.message?.viewOnceMessage?.message ||
+                m.message?.viewOnceMessageV2?.message ||
+                m.message;
 
-            return text.toLowerCase().includes(identifier.toLowerCase());
+            const content = msg?.extendedTextMessage || msg;
+            let text = "";
+
+            if (content?.conversation) {
+                text = content.conversation;
+            } else if (content?.extendedTextMessage?.text || content?.text) {
+                text = content?.extendedTextMessage?.text || content?.text;
+            } else if (content?.imageMessage) {
+                text = content.imageMessage.caption || "";
+            } else if (content?.videoMessage) {
+                text = content.videoMessage.caption || "";
+            }
+
+            // Comparação exata (trim + case insensitive)
+            return text && text.trim().toLowerCase() === identifier.trim().toLowerCase();
         });
     } else {
         // Busca pelo ID
