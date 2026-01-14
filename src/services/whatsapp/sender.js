@@ -139,22 +139,27 @@ async function sendStickerMessage(jid, stickerPath, pack, author) {
     });
 }
 
-/**
- * Busca uma mensagem no store por ID ou texto
- */
 async function findMessage(jid, identifier, type = "id") {
-    const { getStore } = require("./client");
-    const store = getStore();
-    if (!store) return null;
+    const storage = require("./storage");
 
-    // Carrega mensagens recentes do chat
-    const msgs = await store.loadMessages(jid, 50);
+    // Extrai o telefone do JID para buscar no arquivo correto
+    const phone = jid.split("@")[0];
+
+    // Busca mensagens do histórico (já descomprimido)
+    const msgs = await storage.getHistory(phone);
+
+    if (!msgs || msgs.length === 0) return null;
 
     if (type === "text") {
         // Busca a mais recente que contenha o texto exato
-        return msgs.reverse().find(m => {
-            const text = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
-            return text.toLowerCase() === identifier.toLowerCase();
+        // Como o getHistory retorna ordenado (antigo -> novo), invertemos para pegar o mais recente
+        return [...msgs].reverse().find(m => {
+            const text = m.message?.conversation ||
+                m.message?.extendedTextMessage?.text ||
+                m.message?.imageMessage?.caption ||
+                m.message?.videoMessage?.caption || "";
+
+            return text.toLowerCase().includes(identifier.toLowerCase());
         });
     } else {
         // Busca pelo ID

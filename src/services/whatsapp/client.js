@@ -148,7 +148,24 @@ async function startBot() {
 
                 const phone = jid.split("@")[0];
 
-                // Salva no Storage (GZIP)
+                // Verificação de Reaction Message ANTES de salvar
+                const reaction = m.message?.reactionMessage;
+
+                if (reaction) {
+                    const targetId = reaction.key?.id;
+                    const emoji = reaction.text; // Pode ser string ou vazio/null (remoção)
+
+                    // 1. Atualiza cache em memória
+                    if (targetId) storeReaction(targetId, emoji);
+
+                    // 2. Atualiza a mensagem original no arquivo (adiciona/remove campo reaction)
+                    await storage.updateMessageReaction(phone, targetId, emoji);
+
+                    // 3. NÃO salva a mensagem de reação no histórico (pula para próxima)
+                    continue;
+                }
+
+                // Salva message normal no Storage (GZIP)
                 await storage.addMessageToHistory(phone, m);
 
                 // Atualiza Índice de Chats
@@ -166,14 +183,6 @@ async function startBot() {
                 if (jidLog) {
                     const after = (await storage.getHistory(phone)).length;
                     logger.log(`📩 UPSERT: ${jidLog}. Total no arquivo: ${after}`);
-                }
-
-                // Captura reações que chegam como mensagens normais
-                const reaction = m.message?.reactionMessage;
-                if (reaction) {
-                    const targetId = reaction.key?.id;
-                    const emoji = reaction.text;
-                    storeReaction(targetId, emoji);
                 }
             }
 
