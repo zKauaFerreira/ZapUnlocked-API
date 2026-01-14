@@ -22,5 +22,9 @@ module.exports = {
 
     // Management & History
     fetchMessages: fetcher.fetchMessages,
-    getRecentChats: fetcher.getRecentChats
+    getRecentChats: fetcher.getRecentChats,
+
+    // Reactions & Helpers
+    sendReaction: sender.sendReaction,
+    findMessage: sender.findMessage
 };

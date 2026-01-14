@@ -56,12 +56,15 @@ async function fetchMessages(jid, limit = 20, type = "all") {
             text = `[${messageType}]`;
         }
 
+        // Converte timestamp (pode vir como objeto Long do Baileys)
+        const timestamp = m.messageTimestamp?.low || m.messageTimestamp || null;
+
         return {
             id: m.key.id,
             fromMe: m.key.fromMe,
             pushName: m.pushName || null,
             text: text,
-            timestamp: m.messageTimestamp,
+            timestamp: timestamp,
             mimetype: m.message?.imageMessage?.mimetype ||
                 m.message?.videoMessage?.mimetype ||
                 m.message?.audioMessage?.mimetype ||
@@ -100,12 +103,20 @@ function getRecentChats(limit = 20) {
     // O store.chats contém os metadados dos chats sincronizados na sessão
     const chats = store.chats.all();
 
-    const formattedChats = chats.map(c => ({
-        id: c.id,
-        name: c.name || null,
-        unreadCount: c.unreadCount || 0,
-        lastMessageTimestamp: c.conversationTimestamp || null
-    })).sort((a, b) => (b.lastMessageTimestamp || 0) - (a.lastMessageTimestamp || 0));
+    const formattedChats = chats.map(c => {
+        // Extrai o número do JID (ex: 5551... ou o ID lid)
+        const phone = c.id.split("@")[0];
+        // Converte timestamp
+        const timestamp = c.conversationTimestamp?.low || c.conversationTimestamp || null;
+
+        return {
+            id: c.id,
+            phone: phone,
+            name: c.name || null,
+            unreadCount: c.unreadCount || 0,
+            lastMessageTimestamp: timestamp
+        };
+    }).sort((a, b) => (b.lastMessageTimestamp || 0) - (a.lastMessageTimestamp || 0));
 
     return formattedChats.slice(0, limit);
 }

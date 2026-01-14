@@ -11,10 +11,11 @@ async function sendMessage(jid, message, options = {}) {
     const sock = getSock();
     if (!sock || !isReady()) throw new Error("WhatsApp não está conectado");
 
-    const messageOptions = { text: message };
-    if (options.quoted) messageOptions.quoted = options.quoted;
+    const messageContent = { text: message };
+    const sendOptions = {};
+    if (options.quoted) sendOptions.quoted = options.quoted;
 
-    return await sock.sendMessage(jid, messageOptions);
+    return await sock.sendMessage(jid, messageContent, sendOptions);
 }
 
 /**
@@ -24,7 +25,7 @@ async function sendButtonMessage(jid, message, buttonText, buttonValue, options 
     const sock = getSock();
     if (!sock || !isReady()) throw new Error("WhatsApp não está conectado");
 
-    const messageOptions = {
+    const messageContent = {
         text: message,
         buttons: [
             {
@@ -36,9 +37,10 @@ async function sendButtonMessage(jid, message, buttonText, buttonValue, options 
         headerType: 1
     };
 
-    if (options.quoted) messageOptions.quoted = options.quoted;
+    const sendOptions = {};
+    if (options.quoted) sendOptions.quoted = options.quoted;
 
-    return await sock.sendMessage(jid, messageOptions);
+    return await sock.sendMessage(jid, messageContent, sendOptions);
 }
 
 /**
@@ -138,19 +140,55 @@ async function sendStickerMessage(jid, stickerPath, pack, author) {
 }
 
 /**
+ * Busca uma mensagem no store por ID ou texto
+ */
+async function findMessage(jid, identifier, type = "id") {
+    const { getStore } = require("./client");
+    const store = getStore();
+    if (!store) return null;
+
+    // Carrega mensagens recentes do chat
+    const msgs = await store.loadMessages(jid, 50);
+
+    if (type === "text") {
+        // Busca a mais recente que contenha o texto exato
+        return msgs.reverse().find(m => {
+            const text = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
+            return text.toLowerCase() === identifier.toLowerCase();
+        });
+    } else {
+        // Busca pelo ID
+        return msgs.find(m => m.key.id === identifier);
+    }
+}
+
+/**
  * Envia uma reação para uma mensagem específica
  */
-async function sendReaction(jid, messageId, emoji) {
+async function sendReaction(jid, identifier, emoji, type = "id") {
     const sock = getSock();
     if (!sock || !isReady()) throw new Error("WhatsApp não está conectado");
+
+    const found = await findMessage(jid, identifier, type);
+
+    // Se for por ID e não encontrar, ainda tentamos reagir (pode ser stub)
+    let targetId = identifier;
+    let fromMe = false;
+
+    if (found) {
+        targetId = found.key.id;
+        fromMe = found.key.fromMe;
+    } else if (type === "text") {
+        throw new Error(`Nenhuma mensagem recente encontrada com o texto: "${identifier}"`);
+    }
 
     return await sock.sendMessage(jid, {
         react: {
             text: emoji,
             key: {
                 remoteJid: jid,
-                fromMe: false, // Reagindo a mensagens recebidas por padrão
-                id: messageId
+                fromMe: fromMe,
+                id: targetId
             }
         }
     });

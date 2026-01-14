@@ -12,7 +12,7 @@ async function sendWithButtons(req, res) {
         return res.status(503).json({ error: "WhatsApp ainda não conectado" });
     }
 
-    const { phone, message, button_text, webhook, reaction, quoted_id } = req.body;
+    const { phone, message, button_text, webhook, reaction, reply, type, quoted_id } = req.body;
 
     if (!phone || !message || !button_text) {
         return res.status(400).json({ error: "phone, message e button_text obrigatórios" });
@@ -33,21 +33,26 @@ async function sendWithButtons(req, res) {
         const jid = `${phone}@s.whatsapp.net`;
         const options = {};
 
-        // Se houver quoted_id, tenta recuperar a mensagem do store
-        if (quoted_id) {
-            const store = whatsappService.getStore();
-            const quotedMsg = await store.loadMessage(jid, quoted_id);
+        // Identificador de resposta (pode ser o ID ou Texto conforme o type)
+        const replyIdentifier = reply || quoted_id;
+        const replyType = type || "id";
+
+        if (replyIdentifier) {
+            const quotedMsg = await whatsappService.findMessage(jid, replyIdentifier, replyType);
+
             if (quotedMsg) {
                 options.quoted = quotedMsg;
-            } else {
+            } else if (replyType === "id") {
                 options.quoted = {
                     key: {
                         remoteJid: jid,
                         fromMe: false,
-                        id: quoted_id
+                        id: replyIdentifier
                     },
                     message: { conversation: "..." }
                 };
+            } else {
+                throw new Error(`Não foi possível encontrar a mensagem para responder com o texto: "${replyIdentifier}"`);
             }
         }
 
