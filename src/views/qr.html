@@ -307,8 +307,8 @@
           qrDisplay.style.display = 'flex';
 
           if (data.qr) {
-            // Atualiza imagem do QR
-            qrDisplay.innerHTML = `<img src="${data.qr}" alt="QR Code">`;
+            // Atualiza imagem do QR usando o endpoint de imagem + timestamp para evitar cache
+            qrDisplay.innerHTML = `<img src="/qr/image?API_KEY=${apiKey}&t=${new Date().getTime()}" alt="QR Code">`;
           }
         }
       } catch (error) {
