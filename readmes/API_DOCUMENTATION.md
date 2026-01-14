@@ -4,224 +4,112 @@ Esta API permite o envio de mensagens e botões via WhatsApp, além do gerenciam
 
 ## 🔐 Autenticação
 
-Todas as rotas (exceto o status principal `/`) requerem a passagem da chave de API no header da requisição.
+Todas as rotas requerem a passagem da chave de API no header da requisição ou parâmetro de URL (`API_KEY`).
 
 - **Header:** `x-api-key`
 - **Valor:** Deve ser o mesmo definido na variável de ambiente `API_KEY`.
 
 ---
 
-### Enviar Imagem (via URL)
-`POST /send_image`
-
-Envia uma imagem a partir de uma URL pública. A imagem é baixada temporariamente e removida logo após o envio.
-
-```json
-{
-  "phone": "555185867410",
-  "image_url": "https://exemplo.com/imagem.jpg",
-  "caption": "Legenda opcional"
-}
-```
-
-### Enviar Áudio (via URL)
-`POST /send_audio`
-
-Envia um áudio. Se for menor que 15MB, envia como áudio padrão (ou PTT). Se for maior, envia como documento.
-
-**Body:**
-```json
-{
-  "phone": "555185867410",
-  "audio_url": "https://exemplo.com/audio.mp3",
-  "ptt": true,
-  "asDocument": false
-}
-```
-- `ptt`: Se `true`, aparece como mensagem de voz (apenas para arquivos pequenos).
-- `asDocument`: Força o envio como arquivo.
-
-### Enviar Vídeo (via URL)
-`POST /send_video`
-
-Envia um vídeo. Se for menor que 15MB, envia como vídeo normal (com compressão). Se for maior, envia como documento (alta qualidade).
-
-**Body:**
-```json
-{
-  "phone": "555185867410",
-  "video_url": "https://exemplo.com/video.mp4",
-  "caption": "Legenda do vídeo",
-  "gifPlayback": false,
-  "ptv": false,
-  "asDocument": false
-}
-```
-- `gifPlayback`: Envia como um GIF (sem som).
-- `ptv`: Envia como vídeo redondo (curto).
-- `asDocument`: Força o envio como documento (2GB limit).
-
-### Enviar Documento (via URL)
-`POST /send_document`
-
-Envia qualquer tipo de arquivo (PDF, DOCX, ZIP, etc). Limite de 400MB configurado na API (suporta até 2GB no protocolo).
-
-**Body:**
-```json
-{
-  "phone": "555185867410",
-  "document_url": "https://exemplo.com/doc.pdf",
-  "fileName": "nome_personalizado.pdf"
-}
-```
-
-### Enviar Figurinha/Sticker (via URL)
-`POST /send_sticker`
-
-Converte uma imagem em figurinha WebP (512x512) com suporte a metadados e modos de redimensionamento.
-
-**Body:**
-```json
-{
-  "phone": "555185867410",
-  "image_url": "https://exemplo.com/foto.jpg",
-  "pack": "Meu Pack",
-  "author": "Antigravity",
-  "resizeMode": "blur",
-  "blurIntensity": 30
-}
-```
-- `pack`: Nome do pacote (opcional).
-- `author`: Autor da figurinha (opcional).
-- `resizeMode`: Modos disponíveis: `pad` (padrão), `transparent`, `stretch`, `cover`, `contain`, `blur`.
-- `padColor`: Cor do fundo em modo `pad` (ex: `white`, `red`, `#FF0000`). Use `transparent` para sem fundo.
-- `blurIntensity`: Intensidade do desfoque no modo `blur` (1 a 100).
-
-
----
-
 ## 🚀 Endpoints de Mensagens
 
 ### 1️⃣ Enviar Mensagem de Texto
-Envia uma mensagem simples para um número de WhatsApp.
+Envia uma mensagem simples. Suporta resposta (reply) por ID ou por busca de texto.
 
 - **URL:** `/send`
 - **Método:** `POST`
-- **Autenticação:** Sim (Header `x-api-key`)
 - **Body (JSON):**
 ```json
 {
   "phone": "5511999999999",
   "message": "Sua mensagem aqui 💌",
-  "quoted_id": "ID_DA_MENSAGEM_ANTERIOR" // Opcional: Para responder citando uma mensagem
+  "reply": "texto da msg anterior OU id_da_msg", // (Opcional) Responde a uma mensagem
+  "type": "text" // (Opcional) "text" para buscar por texto exato, ou "id" (padrão)
 }
 ```
+*Dica: Se `type` for `text`, a API buscará a mensagem mais recente enviada/recebida com aquele texto exato para responder.*
 
-### 2️⃣ Enviar Mensagem com Botão Customizado
-Envia uma mensagem contendo um botão interativo.
+### 2️⃣ Enviar Mensagem com Botão
+Envia mensagem com botão interativo e suporte a webhook.
 
 - **URL:** `/send_wbuttons`
 - **Método:** `POST`
-- **Autenticação:** Sim (Header `x-api-key`)
 - **Body (JSON):**
 ```json
 {
   "phone": "5511999999999",
   "message": "Escolha uma opção:",
-  "button_text": "Texto do Botão",
-  "quoted_id": "ID_DA_MENSAGEM", // Opcional
-  "reaction": "💖", // Opcional: Emoji para reagir ao clique
-  "webhook": {
-    "url": "https://meuservico.com/webhook",
-    "method": "POST",
-    "headers": {
-      "x-api-key": "SUA_CHAVE",
-      "Content-Type": "application/json"
-    },
-    "body": {
-      "event": "button_click",
-      "user": "{{from}}",
-      "button": "{{text}}",
-      "data": "valor_fixo"
-    }
-  }
+  "button_text": "Confirmar",
+  "reply": "texto ou ID", // (Opcional)
+  "type": "text", // (Opcional) "text" ou "id"
+  "reaction": "💖", // (Opcional) Reage ao clique
+  "webhook": { ... } // (Opcional) Configuração de webhook
 }
 ```
 
 ### 3️⃣ Reagir a uma Mensagem
-Envia um emoji de reação para uma mensagem específica através do ID.
+Envia (ou remove) uma reação.
 
 - **URL:** `/send_reaction`
 - **Método:** `POST`
-- **Autenticação:** Sim
 - **Body:**
 ```json
 {
   "phone": "5511999999999",
-  "messageId": "ABC123ID",
-  "emoji": "🔥"
+  "reaction": "Texto Exato da Mensagem", // OU use "messageId": "ID..."
+  "type": "text", // "text" ou "id"
+  "emoji": "🔥" // Para remover a reação, envie string vazia ""
 }
 ```
 
+---
 
-#### Placeholders Disponíveis no Body/Headers:
-- `{{from}}`: Número de quem clicou (ex: `5511999999999`).
-- `{{phone}}`: Número consultado (usado em buscas de histórico).
-- `{{text}}`: Texto do botão ou metadados de busca.
-- `{{requested}}`: Quantidade de mensagens solicitadas no histórico.
-- `{{found}}`: Quantidade de mensagens encontradas no histórico.
-- `{{timestamp}}`: Data/hora atual (ISO format).
+## 📲 Endpoints de Mídia
+
+### 1️⃣ Enviar Imagem / Áudio / Vídeo / Documento / Sticker
+Rotas para envio de mídia via URL pública.
+
+- **POST** `/send_image`
+- **POST** `/send_audio` (flags: `ptt`, `asDocument`)
+- **POST** `/send_video` (flags: `ptv`, `gifPlayback`, `asDocument`)
+- **POST** `/send_document`
+- **POST** `/send_sticker`
+
+*(Consulte os exemplos detalhados no README principal para payloads específicos)*
 
 ---
 
-## 📲 Endpoints de QR Code & Sessão
+## ⚙️ Gerenciamento e Sessão
 
-### 1️⃣ Página do QR Code (HTML)
-Acessa a interface visual para escanear o QR Code no navegador.
+### 1️⃣ Status da API (Protegido)
+Verifica status da conexão e retorna informações do QR Code.
 
-- **URL:** `/qr`
+- **URL:** `/status`
 - **Método:** `GET`
-- **Autenticação:** Sim (Header `x-api-key`)
+- **Autenticação:** Sim
 
-### 2️⃣ Imagem do QR Code (PNG)
-Obtém apenas a imagem do QR Code em formato PNG.
+### 2️⃣ Logout
+Desconecta o WhatsApp.
 
-- **URL:** `/qr/image`
-- **Método:** `GET`
-- **Autenticação:** Sim (Header `x-api-key`)
-
-### 3️⃣ Logout (Apagar Sessão)
-Desconecta o WhatsApp e remove os arquivos de sessão do servidor.
-
-- **URL:** `/qr/logout`
+- **URL:** `/whatsapp/qr/logout`
 - **Método:** `POST`
-- **Autenticação:** Sim (Header `x-api-key`)
-
----
-
-## 📊 Endpoints Gerais
-
-### 1️⃣ Status da API
-Verifica se o servidor e o WhatsApp estão online.
-
-- **URL:** `/`
-- **Método:** `GET`
-- **Autenticação:** Não
-- **Resposta:**
+- **Body:**
 ```json
 {
-  "status": "online",
-  "whatsapp": "connected",
-  "timestamp": "2026-01-13T01:47:07.000Z"
+  "keepData": true // Se true, mantem histórico e apenas desconecta. Se false, apaga tudo.
 }
 ```
 
+### 3️⃣ QR Code
+- **Página HTML:** `GET /qr`
+- **Imagem PNG:** `GET /qr/image`
+
 ---
 
-## 🛠️ Endpoints de Gerenciamento & Histórico
+## 📂 Gerenciamento de Dados (Management)
 
 ### 1️⃣ Buscar Histórico de Mensagens
-Busca mensagens diretamente dos servidores do WhatsApp (sem salvar no disco).
+Busca mensagens salvas no disco (JSON GZIP).
 
 - **URL:** `/management/fetch_messages`
 - **Método:** `POST`
@@ -230,16 +118,29 @@ Busca mensagens diretamente dos servidores do WhatsApp (sem salvar no disco).
 {
   "phone": "5511999999999",
   "limit": 50,
-  "type": "received", // "sent", "received" ou "all"
-  "webhook": { // Opcional
-    "url": "https://meuservico.com/webhook",
-    "method": "POST"
-  }
+  "type": "all", // "sent", "received", "all"
+  "query": "texto para buscar", // (Opcional) Filtra por conteúdo
+  "onlyReactions": false, // (Opcional) Retorna só reações
+  "reactionEmoji": "👍", // (Opcional) Filtra por emoji de reação
+  "onlyButtons": false // (Opcional) Retorna só msgs com botões
 }
 ```
 
-### 2️⃣ Listar Contatos Recentes
-Retorna os chats que tiveram atividade na sessão atual (InMemoryStore).
+### 2️⃣ Estatísticas de Volume
+Retorna o tamanho ocupado pelos chats no disco.
+
+- **URL:** `/management/volume_stats`
+- **Método:** `GET`
+
+### 3️⃣ Limpeza de Armazenamento
+Apaga TODOS os dados de histórico e índices de chat do servidor.
+
+- **URL:** `/management/cleanup`
+- **Método:** `DELETE`
+- **Atenção:** Ação irreversível.
+
+### 4️⃣ Listar Chats Recentes
+Retorna lista de contatos com atividade recente.
 
 - **URL:** `/management/recent_contacts`
 - **Método:** `POST`
@@ -249,3 +150,48 @@ Retorna os chats que tiveram atividade na sessão atual (InMemoryStore).
   "limit": 100
 }
 ```
+
+---
+
+## 🔗 Webhook Global (Integração)
+
+Permite configurar um webhook único que receberá todas as mensagens recebidas pelo bot.
+
+### 1️⃣ Configurar Webhook
+Define a URL e parâmetros. Cria o arquivo de configuração e ativa o envio.
+
+- **URL:** `/webhook/config`
+- **Método:** `POST`
+- **Body:**
+```json
+{
+  "url": "https://meusistema.com/receber",
+  "method": "POST",
+  "headers": { "Authorization": "Bearer 123" },
+  "body": {
+    "event": "nova_mensagem",
+    "sender": "{{from}}",
+    "conteudo": "{{text}}",
+    "timestamp": "{{timestamp}}"
+  },
+  "enabled": true
+}
+```
+
+### 2️⃣ Alternar Status (On/Off)
+Ativa ou desativa o envio sem perder a configuração.
+
+- **URL:** `/webhook/toggle`
+- **Método:** `POST`
+- **Body:**
+```json
+{
+  "status": "off" // ou "on"
+}
+```
+
+### 3️⃣ Remover Webhook
+Desativa e **apaga** o arquivo de configuração do servidor.
+
+- **URL:** `/webhook`
+- **Método:** `DELETE`

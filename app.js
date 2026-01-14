@@ -11,11 +11,15 @@ const createApp = require("./src/app");
 const whatsappService = require("./src/services/whatsapp");
 const { PORT } = require("./src/config/constants");
 const logger = require("./src/utils/logger");
+const globalWebhookRoutes = require("./src/routes/globalWebhook"); // Import globalWebhookRoutes
 
 // ===================== INICIALIZAÇÃO =====================
 
 // Inicializa o app Express com todas as rotas e middlewares
 const app = createApp();
+
+// Use the globalWebhookRoutes
+app.use("/webhook", globalWebhookRoutes);
 
 // Inicia o servidor HTTP
 app.listen(PORT, () => {

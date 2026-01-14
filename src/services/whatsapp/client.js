@@ -168,6 +168,35 @@ async function startBot() {
                 // Salva message normal no Storage (GZIP)
                 await storage.addMessageToHistory(phone, m);
 
+                // --- INTEGRACAO DE GLOBAL WEBHOOK ---
+                // Verifica se deve disparar o webhook global
+                try {
+                    const webhookConfig = require("../../services/webhookConfig");
+                    const { triggerWebhook } = require("../../services/webhookService");
+                    const globalConfig = webhookConfig.getWebhookConfig();
+
+                    // Se existe config e está ATIVO
+                    if (globalConfig && globalConfig.enabled) {
+                        // Extração simplificada de texto para o webhook
+                        const msgContent = m.message?.extendedTextMessage?.text ||
+                            m.message?.conversation ||
+                            m.message?.imageMessage?.caption ||
+                            m.message?.videoMessage?.caption || "";
+
+                        // Dispara sem await para não bloquear o bot
+                        triggerWebhook(globalConfig, {
+                            from: phone,
+                            text: msgContent,
+                            phone: phone,
+                            id: m.key.id,
+                            timestamp: m.messageTimestamp
+                        }).catch(err => logger.error("Falha silenciosa no webhook global:", err.message));
+                    }
+                } catch (err) {
+                    logger.error("Erro na lógica do webhook global:", err.message);
+                }
+                // ------------------------------------
+
                 // Atualiza Índice de Chats
                 const chatInfo = {
                     id: jid.includes("@lid") ? `${phone}@s.whatsapp.net` : jid, // Força @s.whatsapp.net se resolvemos o phone
