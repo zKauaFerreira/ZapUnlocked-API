@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { DATA_DIR } = require("../../config/constants");
+const { DATA_DIR } = require("../config/constants");
 
 // Caminho para o arquivo de configuração do webhook (data/chats/webhook.json)
 const WEBHOOK_FILE = path.join(DATA_DIR, "chats", "webhook.json");
