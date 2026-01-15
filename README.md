@@ -63,7 +63,7 @@ O **[ZapUnlocked-API](https://zapdocs.kauafpss.qzz.io)** é uma solução profis
 - `POST /qr/pair` - Gerar Código de Pareamento Numérico
 - `POST /qr/logout` - Desconectar e Resetar Sessão
 
-### 🪝 Webhooks (Globais)
+### 📡 Webhooks (Globais)
 - `POST /webhook/config` - Configurar URL do Webhook
 - `POST /webhook/toggle` - Ativar/Desativar Recebimento
 - `DELETE /webhook/delete` - Remover Configuração

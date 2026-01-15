@@ -55,7 +55,7 @@
 - `POST /qr/pair` - 生成数字配对代码
 - `POST /qr/logout` - 断开连接并重置会话
 
-### 🪝 Webhooks (全局)
+### 📡 Webhooks (全局)
 - `POST /webhook/config` - 配置 Webhook URL
 - `POST /webhook/toggle` - 启用/禁用接收
 - `DELETE /webhook/delete` - 删除配置

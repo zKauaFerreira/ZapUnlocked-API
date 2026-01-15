@@ -55,7 +55,7 @@
 - `POST /qr/pair` - Générer un Code d'Appairage Numérique
 - `POST /qr/logout` - Déconnexion et Réinitialisation de la Session
 
-### 🪝 Webhooks (Globaux)
+### 📡 Webhooks (Globaux)
 - `POST /webhook/config` - Configurer l'URL du Webhook
 - `POST /webhook/toggle` - Activer/Désactiver la Réception
 - `DELETE /webhook/delete` - Supprimer la Configuration

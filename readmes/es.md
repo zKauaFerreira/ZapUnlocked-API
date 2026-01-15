@@ -55,7 +55,7 @@
 - `POST /qr/pair` - Generar Código de Emparejamiento Numérico
 - `POST /qr/logout` - Desconectar y Resetear Sesión
 
-### 🪝 Webhooks (Globales)
+### 📡 Webhooks (Globales)
 - `POST /webhook/config` - Configurar URL del Webhook
 - `POST /webhook/toggle` - Activar/Desactivar Recepción
 - `DELETE /webhook/delete` - Eliminar Configuración

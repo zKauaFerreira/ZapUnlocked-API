@@ -55,7 +55,7 @@
 - `POST /qr/pair` - 数値ペアリングコードを生成
 - `POST /qr/logout` - 切断してセッションをリセット
 
-### 🪝 Webhooks (グローバル)
+### 📡 Webhooks (グローバル)
 - `POST /webhook/config` - Webhook URL の設定
 - `POST /webhook/toggle` - 受信の有効化/無効化
 - `DELETE /webhook/delete` - 設定の削除
