@@ -126,7 +126,10 @@
             '.text-xs.font-semibold.uppercase.tracking-wide.text-gray-900.dark\\:text-white', // Desktop sidebar heading
             '.text-sm.font-semibold.text-gray-900.dark\\:text-white', // Alternative sidebar heading
             '.truncate', // General truncate class used in search bar
-            '#search-bar-entry div' // Specific content inside search bar
+            '#search-bar-entry div', // Specific content inside search bar
+            // Context menu translations
+            '.text-sm.font-medium.text-gray-800.dark\\:text-gray-300', // Menu titles
+            '.text-xs.text-gray-600.dark\\:text-gray-400' // Menu descriptions
         ];
 
         selectors.forEach(selector => {
@@ -136,20 +139,42 @@
                     el.textContent = 'Nesta página';
                 } else if (text === 'Search...') {
                     el.textContent = 'Buscar...';
+                } else if (text === 'Copy page') {
+                    el.textContent = 'Copiar';
+                } else if (text === 'Copy page as Markdown for LLMs') {
+                    el.textContent = 'Copiar como Markdown para LLMs';
+                } else if (text === 'Open in ChatGPT') {
+                    el.textContent = 'Abrir no ChatGPT';
+                } else if (text.includes('Ask questions about this page')) {
+                    el.textContent = 'Fazer perguntas sobre esta página';
+                } else if (text === 'Open in Claude') {
+                    el.textContent = 'Abrir no Claude';
                 }
             });
         });
 
         // Also check buttons directly and inputs
         document.querySelectorAll('button, input').forEach(el => {
-            if (el.textContent.trim() === 'On this page') {
+            const text = el.textContent.trim();
+            if (text === 'On this page') {
                 el.textContent = 'Nesta página';
+            } else if (text === 'Copy page') {
+                const span = el.querySelector('span');
+                if (span) span.textContent = 'Copiar';
+                else el.textContent = 'Copiar';
             }
+
             if (el.placeholder === 'Search...') {
                 el.placeholder = 'Buscar...';
             }
             if (el.getAttribute('aria-label') === 'Open search') {
                 el.setAttribute('aria-label', 'Abrir busca');
+            }
+            if (el.getAttribute('aria-label') === 'Copy page') {
+                el.setAttribute('aria-label', 'Copiar');
+            }
+            if (el.getAttribute('aria-label') === 'More actions') {
+                el.setAttribute('aria-label', 'Mais ações');
             }
         });
     }
@@ -277,8 +302,233 @@
         }
     }
 
+    // --- Copy to Markdown (LLM Optimized) ---
+
+    function getMarkdownFromElement(element) {
+        let markdown = '';
+        const children = element.childNodes;
+
+        children.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                const tag = node.tagName.toLowerCase();
+
+                // Skip UI elements and specific noise
+                if (node.matches('script, style, nav, footer, button, .sr-only, .copy-page-btn, .pagination-link, [class*="Pagination"], .chat-assistant-floating-input, [class*="assistant-bar"]')) {
+                    return;
+                }
+
+                if (tag.match(/^h[1-6]$/)) {
+                    const level = tag.substring(1);
+                    markdown += '\n' + '#'.repeat(level) + ' ' + node.textContent.trim() + '\n';
+                } else if (tag === 'p') {
+                    markdown += '\n' + node.textContent.trim() + '\n';
+                } else if (tag === 'pre' || node.classList.contains('code-block') || node.matches('[class*="shiki"]')) {
+                    // Extract code content
+                    let code = node.innerText || node.textContent;
+                    // Try to avoid double copying if it has line numbers or copy buttons
+                    const codeElement = node.querySelector('code');
+                    if (codeElement) code = codeElement.innerText;
+
+                    let lang = '';
+                    const langMatch = node.className.match(/language-(\w+)/) || (codeElement && codeElement.className.match(/language-(\w+)/));
+                    if (langMatch) lang = langMatch[1];
+                    markdown += '\n```' + lang + '\n' + code.trim() + '\n```\n';
+                } else if (tag === 'ul' || tag === 'ol') {
+                    const prefix = tag === 'ul' ? '- ' : '1. ';
+                    const items = node.querySelectorAll(':scope > li');
+                    items.forEach((li, idx) => {
+                        const liPrefix = tag === 'ul' ? '- ' : `${idx + 1}. `;
+                        markdown += liPrefix + li.textContent.trim() + '\n';
+                    });
+                    markdown += '\n';
+                } else if (tag === 'blockquote') {
+                    markdown += '\n> ' + node.textContent.trim() + '\n';
+                } else if (tag === 'br') {
+                    markdown += '\n';
+                } else {
+                    // Recursive for generic containers (div, span, section, strong, em, a, etc.)
+                    markdown += getMarkdownFromElement(node);
+                }
+            } else if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent;
+                // Add text if it's not just whitespace
+                if (text.trim()) {
+                    // Check if parent is a block element already handled
+                    const parentTag = node.parentElement.tagName.toLowerCase();
+                    if (!parentTag.match(/^h[1-6]$/) && parentTag !== 'p' && parentTag !== 'li' && parentTag !== 'blockquote' && parentTag !== 'pre' && parentTag !== 'code') {
+                        markdown += text;
+                    }
+                }
+            }
+        });
+
+        return markdown;
+    }
+
+    function copyPageAsMarkdown(targetBtn) {
+        const title = document.title.split(' - ')[0] || 'Documentation';
+        const url = window.location.href;
+
+        // Find main content
+        const contentArea = document.querySelector('#content-area, .mdx-content, main article, #content') || document.body;
+
+        let markdown = `# ${title}\n\n`;
+        markdown += `Source: ${url}\n\n`;
+        markdown += '---\n\n';
+
+        markdown += getMarkdownFromElement(contentArea);
+
+        // Clean up excessive newlines
+        markdown = markdown.replace(/\n{3,}/g, '\n\n').trim();
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(markdown).then(() => {
+            const btn = targetBtn || document.getElementById('copy-markdown-btn') || document.getElementById('page-context-menu-button');
+            if (btn) {
+                // If it's part of the native contextual menu, we apply success to both buttons
+                const container = btn.closest('#page-context-menu');
+                if (container) {
+                    const allButtons = container.querySelectorAll('button');
+                    const primarySpan = btn.querySelector('span');
+                    const originalSpanText = primarySpan ? primarySpan.innerText : '';
+
+                    if (primarySpan) primarySpan.innerText = 'Copiado!';
+                    allButtons.forEach(b => b.classList.add('btn-success'));
+
+                    setTimeout(() => {
+                        if (primarySpan) primarySpan.innerText = originalSpanText;
+                        allButtons.forEach(b => b.classList.remove('btn-success'));
+                    }, 2000);
+                } else if (btn.getAttribute('role') === 'menuitem') {
+                    // Logic for dropdown menu item
+                    const titleDiv = Array.from(btn.querySelectorAll('div')).find(d => {
+                        const t = d.textContent.trim();
+                        return t === 'Copiar' || t === 'Copiar página' || t === 'Copy page';
+                    });
+                    const originalTitle = titleDiv ? titleDiv.innerText : '';
+                    const checkIcon = btn.querySelector('.lucide-check');
+
+                    if (titleDiv) titleDiv.innerText = 'Copiado!';
+                    if (checkIcon) {
+                        checkIcon.classList.remove('opacity-0');
+                        checkIcon.classList.add('opacity-100');
+                    }
+                    btn.classList.add('btn-success');
+
+                    setTimeout(() => {
+                        if (titleDiv) titleDiv.innerText = originalTitle;
+                        if (checkIcon) {
+                            checkIcon.classList.remove('opacity-100');
+                            checkIcon.classList.add('opacity-0');
+                        }
+                        btn.classList.remove('btn-success');
+                    }, 2000);
+                } else {
+                    // Fallback for custom button
+                    const originalHTML = btn.innerHTML;
+                    if (btn.querySelector('span')) {
+                        const span = btn.querySelector('span');
+                        const originalSpanText = span.innerText;
+                        span.innerText = 'Copiado!';
+                        btn.classList.add('btn-success');
+                        setTimeout(() => {
+                            span.innerText = originalSpanText;
+                            btn.classList.remove('btn-success');
+                        }, 2000);
+                    } else {
+                        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg> <span>Copiado!</span>';
+                        btn.classList.add('btn-success');
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.classList.remove('btn-success');
+                        }, 2000);
+                    }
+                }
+            }
+        })
+            .catch(err => {
+                console.error('Erro ao copiar Markdown:', err);
+                // Fallback for some browsers
+                const textArea = document.createElement("textarea");
+                textArea.value = markdown;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const btn = targetBtn || document.getElementById('page-context-menu-button');
+                    if (btn) {
+                        const span = btn.querySelector('span');
+                        if (span) span.innerText = 'Copiado!';
+                        btn.classList.add('btn-success');
+                        setTimeout(() => {
+                            if (span) span.innerText = 'Copiar';
+                            btn.classList.remove('btn-success');
+                        }, 2000);
+                    }
+                } catch (err2) {
+                    alert('Não foi possível copiar o Markdown.');
+                }
+                document.body.removeChild(textArea);
+            });
+    }
+
+    function hijackNativeCopyButton() {
+        // Target specifically by ID if available, or text
+        const nativeBtn = document.getElementById('page-context-menu-button');
+        if (nativeBtn && !nativeBtn.dataset.hijacked) {
+            // Translate immediately
+            const span = nativeBtn.querySelector('span');
+            if (span && (span.textContent.includes('Copy page') || span.innerText.includes('Copy page'))) {
+                span.textContent = 'Copiar';
+            }
+            nativeBtn.setAttribute('aria-label', 'Copiar');
+
+            nativeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                copyPageAsMarkdown(nativeBtn);
+            }, true);
+            nativeBtn.dataset.hijacked = 'true';
+            return;
+        }
+
+        // Fallback to text matching (including dropdown items)
+        document.querySelectorAll('button, [role="menuitem"]').forEach(el => {
+            const text = el.textContent.trim();
+            // Check for any of the labels we've used or standard native labels
+            if ((text.includes('Copiar') || text.includes('Copiar página') || text.includes('Copy page')) && !el.dataset.hijacked) {
+                // Determine if it's a menu item or button
+                const isMenu = el.getAttribute('role') === 'menuitem';
+
+                // If it's a menu item, translate its children if needed
+                if (isMenu) {
+                    const divs = el.querySelectorAll('div');
+                    divs.forEach(d => {
+                        const dText = d.textContent.trim();
+                        if (dText === 'Copy page' || dText === 'Copiar página') d.textContent = 'Copiar';
+                        if (dText === 'Copy page as Markdown for LLMs' || dText === 'Copiar página como Markdown para LLMs') d.textContent = 'Copiar como Markdown para LLMs';
+                    });
+                } else {
+                    const span = el.querySelector('span');
+                    if (span) span.textContent = 'Copiar';
+                    else el.textContent = 'Copiar';
+                }
+
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    copyPageAsMarkdown(el);
+                }, true);
+                el.dataset.hijacked = 'true';
+            }
+        });
+    }
+
+    hijackNativeCopyButton();
+
     hideSendButton();
     renameTryItButton();
+
     translateUI();
     toggleBodyScroll();
     cleanUrlDisplay();
@@ -309,7 +559,10 @@
         toggleBodyScroll();
         cleanUrlDisplay();
         colorRailwayDomain();
+        hijackNativeCopyButton();
     });
+
+
 
     // Start observing the document for changes
     observer.observe(document.body, {

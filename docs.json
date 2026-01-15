@@ -149,5 +149,12 @@
   },
   "appearance": {
     "default": "dark"
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "chatgpt",
+      "claude"
+    ]
   }
 }
