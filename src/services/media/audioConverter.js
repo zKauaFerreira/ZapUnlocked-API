@@ -1,9 +1,6 @@
-const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
 const path = require("path");
 const logger = require("../../utils/logger");
 
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 /**
  * Converte um arquivo de áudio para OGG/Opus (formato nativo do WhatsApp)
@@ -13,6 +10,10 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 async function convertToOgg(inputPath) {
     const outputPath = inputPath.replace(path.extname(inputPath), ".ogg");
     logger.log(`🔄 Convertendo áudio para OGG/Opus: ${path.basename(inputPath)} -> ${path.basename(outputPath)}`);
+
+    const ffmpeg = require("fluent-ffmpeg");
+    const ffmpegPath = require("ffmpeg-static");
+    ffmpeg.setFfmpegPath(ffmpegPath);
 
     return new Promise((resolve, reject) => {
         ffmpeg(inputPath)

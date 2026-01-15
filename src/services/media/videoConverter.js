@@ -1,9 +1,6 @@
-const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
 const path = require("path");
 const logger = require("../../utils/logger");
 
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 /**
  * Converte um vídeo para MP4 (H.264/AAC) compatível com WhatsApp
@@ -14,6 +11,10 @@ async function convertToMp4(inputPath) {
     const extension = path.extname(inputPath);
     const outputPath = inputPath.replace(extension, "_conv.mp4");
     logger.log(`🔄 Convertendo vídeo para MP4: ${path.basename(inputPath)} -> ${path.basename(outputPath)}`);
+
+    const ffmpeg = require("fluent-ffmpeg");
+    const ffmpegPath = require("ffmpeg-static");
+    ffmpeg.setFfmpegPath(ffmpegPath);
 
     return new Promise((resolve, reject) => {
         ffmpeg(inputPath)

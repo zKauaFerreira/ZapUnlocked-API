@@ -1,9 +1,6 @@
-const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
 const path = require("path");
 const logger = require("../../utils/logger");
 
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 /**
  * Converte uma imagem para WebP (formato de sticker do WhatsApp - 512x512)
@@ -15,6 +12,10 @@ async function convertToWebP(inputPath, options = {}) {
     const { resizeMode = "pad", padColor = "black", blurIntensity = 20 } = options;
     const outputPath = inputPath.replace(path.extname(inputPath), ".webp");
     logger.log(`🔄 Convertendo imagem para WebP (${resizeMode}): ${path.basename(inputPath)} -> ${path.basename(outputPath)}`);
+
+    const ffmpeg = require("fluent-ffmpeg");
+    const ffmpegPath = require("ffmpeg-static");
+    ffmpeg.setFfmpegPath(ffmpegPath);
 
     return new Promise((resolve, reject) => {
         let vf = "";

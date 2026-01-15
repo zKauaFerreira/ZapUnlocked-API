@@ -1,5 +1,5 @@
-const QRCode = require("qrcode");
 const whatsappService = require("../../../services/whatsapp");
+
 
 /**
  * Retorna o QR Code como imagem PNG
@@ -19,6 +19,7 @@ async function getQRImage(req, res) {
     }
 
     try {
+        const QRCode = require("qrcode");
         const qrBuffer = await QRCode.toBuffer(qr, {
             type: "png",
             width: 300,

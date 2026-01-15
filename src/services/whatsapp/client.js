@@ -22,7 +22,7 @@ const store = makeInMemoryStore({});
 // Cache global de reações (messageId -> emoji)
 const reactionCache = new Map();
 
-const MAX_REACTIONS_IN_CACHE = 5000;
+const MAX_REACTIONS_IN_CACHE = 1000; // Reduzido de 5000 para economizar RAM
 
 /**
  * Armazena uma reação no cache global
@@ -54,14 +54,43 @@ async function startBot() {
         const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
         const { version } = await fetchLatestBaileysVersion();
 
+        // Limpa socket anterior se existir para evitar vazamento de memória e listeners duplicados
+        if (sock) {
+            try {
+                sock.ev.removeAllListeners();
+                sock.ws.close();
+            } catch (e) { }
+            sock = null;
+        }
+
         sock = makeWASocket({
             version,
             auth: state,
             ...WHATSAPP_CONFIG
         });
 
-        // Vincula o store ao socket
-        store.bind(sock.ev);
+        // Vincula o store ao socket de forma seletiva (apenas para contatos, se necessário)
+        // store.bind(sock.ev); // Comentei para evitar que o Baileys use o InMemoryStore para TUDO (msgs, etc)
+
+        // Se precisar apenas de contatos e metadados de chat (leves):
+        sock.ev.on("contacts.upsert", (contacts) => store.upsertContacts(contacts));
+        sock.ev.on("contacts.update", (updates) => {
+            for (const update of updates) {
+                if (store.contacts[update.id]) {
+                    Object.assign(store.contacts[update.id], update);
+                } else {
+                    store.contacts[update.id] = update;
+                }
+            }
+        });
+        sock.ev.on("chats.upsert", (chats) => store.chats.upsert(chats));
+        sock.ev.on("chats.update", (updates) => {
+            for (const update of updates) {
+                if (store.chats.get(update.id)) {
+                    Object.assign(store.chats.get(update.id), update);
+                }
+            }
+        });
 
         sock.ev.on("creds.update", async () => {
             await saveCreds();

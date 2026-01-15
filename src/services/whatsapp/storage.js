@@ -1,12 +1,11 @@
 const fs = require("fs");
 const path = require("path");
-const zlib = require("zlib");
-const { promisify } = require("util");
+const path = require("path");
+
 const logger = require("../../utils/logger");
 const { DATA_DIR } = require("../../config/constants");
 
-const gzip = promisify(zlib.gzip);
-const gunzip = promisify(zlib.gunzip);
+
 
 // Diretórios de dados (via Constante centralizada)
 const CHATS_DIR = path.join(DATA_DIR, "chats");
@@ -16,7 +15,7 @@ const INDEX_FILE = path.join(CHATS_DIR, "index.json");
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 if (!fs.existsSync(CHATS_DIR)) fs.mkdirSync(CHATS_DIR);
 
-// Limite de mensagens armazenadas por chat
+// Limite de mensagens armazenadas por chat (em disco)
 const HISTORY_LIMIT = 100;
 
 /**
@@ -80,6 +79,8 @@ async function addMessageToHistory(phone, message) {
     try {
         // Se arquivo existe, lê e descomprime
         if (fs.existsSync(filePath)) {
+            const zlib = require("zlib");
+            const gunzip = require("util").promisify(zlib.gunzip);
             const buffer = fs.readFileSync(filePath);
             const decompressed = await gunzip(buffer);
             history = JSON.parse(decompressed.toString());
@@ -96,6 +97,8 @@ async function addMessageToHistory(phone, message) {
         }
 
         // Comprime e salva
+        const zlib = require("zlib");
+        const gzip = require("util").promisify(zlib.gzip);
         const stringified = JSON.stringify(history);
         const compressed = await gzip(stringified);
         fs.writeFileSync(filePath, compressed);
@@ -141,6 +144,8 @@ async function bulkAddMessages(messages) {
 
         try {
             if (fs.existsSync(filePath)) {
+                const zlib = require("zlib");
+                const gunzip = require("util").promisify(zlib.gunzip);
                 const buffer = fs.readFileSync(filePath);
                 const decompressed = await gunzip(buffer);
                 history = JSON.parse(decompressed.toString());
@@ -167,6 +172,8 @@ async function bulkAddMessages(messages) {
                     history = history.slice(-HISTORY_LIMIT);
                 }
 
+                const zlib = require("zlib");
+                const gzip = require("util").promisify(zlib.gzip);
                 const stringified = JSON.stringify(history);
                 const compressed = await gzip(stringified);
                 fs.writeFileSync(filePath, compressed);
@@ -192,6 +199,8 @@ async function getHistory(phone) {
     try {
         if (!fs.existsSync(filePath)) return [];
 
+        const zlib = require("zlib");
+        const gunzip = require("util").promisify(zlib.gunzip);
         const buffer = fs.readFileSync(filePath);
         const decompressed = await gunzip(buffer);
         return JSON.parse(decompressed.toString());
@@ -258,6 +267,8 @@ async function updateMessageReaction(phone, targetId, reaction) {
     try {
         if (!fs.existsSync(filePath)) return;
 
+        const zlib = require("zlib");
+        const gunzip = require("util").promisify(zlib.gunzip);
         const buffer = fs.readFileSync(filePath);
         const decompressed = await gunzip(buffer);
         let history = JSON.parse(decompressed.toString());
@@ -273,6 +284,8 @@ async function updateMessageReaction(phone, targetId, reaction) {
             }
 
             // Salva apenas se achou
+            const zlib = require("zlib");
+            const gzip = require("util").promisify(zlib.gzip);
             const stringified = JSON.stringify(history);
             const compressed = await gzip(stringified);
             fs.writeFileSync(filePath, compressed);

@@ -1,6 +1,5 @@
 const fs = require("fs");
-const { getAudioDuration, getAudioWaveform } = require("baileys-original");
-const { Sticker, StickerTypes } = require("wa-sticker-formatter");
+
 const logger = require("../../utils/logger");
 const { getSock, isReady } = require("./client");
 
@@ -67,6 +66,7 @@ async function sendAudioMessage(jid, audioPath, isPtt = false) {
     let waveform = undefined;
 
     try {
+        const { getAudioDuration, getAudioWaveform } = require("baileys-original");
         seconds = await getAudioDuration(buffer);
         waveform = await getAudioWaveform(buffer);
     } catch (err) {
@@ -125,6 +125,7 @@ async function sendStickerMessage(jid, stickerPath, pack, author) {
     const sock = getSock();
     if (!sock || !isReady()) throw new Error("WhatsApp não está conectado");
 
+    const { Sticker, StickerTypes } = require("wa-sticker-formatter");
     const sticker = new Sticker(fs.readFileSync(stickerPath), {
         pack: pack || "",
         author: author || "",

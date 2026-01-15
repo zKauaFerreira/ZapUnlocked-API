@@ -43,11 +43,14 @@ module.exports = {
   WHATSAPP_CONFIG: {
     browser: ["ZapUnlocked", "Chrome", "20.0.04"],
     printQRInTerminal: false,
-    generateHighQualityLinkPreview: true,
+    generateHighQualityLinkPreview: false, // Otimização de memória
     markOnlineOnConnect: true,
     syncFullHistory: false,
-    syncFullHistoryLimit: 100, // Sincroniza apenas os mais recentes
-    shouldSyncHistoryMessage: () => true
+    syncFullHistoryLimit: 0, // Não sincroniza nada
+    shouldSyncHistoryMessage: () => false, // Desativa sync de histórico
+    cachedGroupMetadata: false, // Reduz uso de RAM ignorando cache de grupos
+    recvBatchMsg: false, // Processa mensagens uma a uma para não sobrecarregar
+    shouldIgnoreJid: (jid) => jid.includes("@broadcast") // Ignora status e listas de transmissão
   },
   RECONNECT_DELAY: 5000
 };
