@@ -312,8 +312,8 @@
             if (node.nodeType === Node.ELEMENT_NODE) {
                 const tag = node.tagName.toLowerCase();
 
-                // Skip UI elements and specific noise
-                if (node.matches('script, style, nav, footer, button, .sr-only, .copy-page-btn, .pagination-link, [class*="Pagination"], .chat-assistant-floating-input, [class*="assistant-bar"]')) {
+                // Skip UI elements and specific noise (including breadcrumbs and pagination)
+                if (node.matches('script, style, nav, footer, button, .sr-only, .copy-page-btn, .pagination-link, [class*="Pagination"], #pagination, [class*="breadcrumb"], .chat-assistant-floating-input, [class*="assistant-bar"]')) {
                     return;
                 }
 
