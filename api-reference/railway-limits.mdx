@@ -1,0 +1,70 @@
+---
+title: "Limites da Railway"
+icon: "server"
+description: "Recursos disponíveis e custos no plano gratuito da Railway."
+---
+
+A **Railway** oferece um plano gratuito com **US$ 1.00 de crédito mensal**. A **ZapUnlocked-API** foi otimizada para operar confortavelmente dentro desse limite.
+
+---
+
+## <Icon icon="server" iconType="sharp-regular" color="#9d4fe6" size={22} /> Recursos do Plano Free
+
+| Recurso | Limite |
+| :--- | :--- |
+| **vCPU** | 1 vCPU (compartilhada) |
+| **RAM** | 0.5 GB (512 MB) |
+| **Armazenamento** | 500 MB |
+| **Crédito Mensal** | US$ 1.00 |
+
+<Note>
+  Esses recursos são suficientes para rodar a API 24/7 com uso moderado.
+</Note>
+
+---
+
+## <Icon icon="dollar-sign" iconType="sharp-regular" color="#9d4fe6" size={22} /> Modelo de Cobrança
+
+A Railway cobra pelos seguintes recursos:
+
+| Recurso | Preço | Uso Médio da API | Custo Mensal |
+| :--- | :--- | :--- | :--- |
+| **RAM (Memória)** | US$ 0.000231 / GB / min | 120-140 MB (~0.13 GB) | ~US$ 0.42 |
+| **CPU (Processamento)** | US$ 0.000463 / vCPU / min | Baixo (picos curtos) | ~US$ 0.002 |
+| **Network Egress** | US$ 0.05 / GB | 100-200 MB/mês | ~US$ 0.01 |
+| **Volume (Storage)** | US$ 0.00000347 / GB / min | ~500 MB (0.5 GB) | ~US$ 0.075 |
+
+---
+
+## <Icon icon="chart-line" iconType="sharp-regular" color="#9d4fe6" size={22} /> Consumo Mensal Estimado
+
+Baseado em uso real com **~1.000 requisições por dia**:
+
+| Recurso | Custo/Mês |
+| :--- | :--- |
+| RAM | US$ 0.42 |
+| CPU | US$ 0.002 |
+| Network | US$ 0.01 |
+| Storage | US$ 0.075 |
+| **Total** | **US$ 0.51** |
+
+<Tip>
+  **Margem de segurança**: US$ 0.49 restantes (~49% do crédito).
+</Tip>
+
+---
+
+## <Icon icon="circle-check" iconType="sharp-regular" color="#9d4fe6" size={22} /> Conclusão
+
+A **ZapUnlocked-API** consome aproximadamente **US$ 0.51 por mês** no plano gratuito da Railway, deixando uma margem confortável para picos de uso.
+
+**Principais pontos**:
+- **RAM** é o maior custo individual
+- **CPU** e **Network** têm impacto **mínimo**
+- **Armazenamento** permanece dentro do **limite** de 500 MB
+- O **projeto** opera com **folga** no **crédito gratuito** de US$ 1.00
+
+<Warning>
+  Para manter os custos baixos, evite sincronizar históricos muito grandes e monitore o uso de armazenamento regularmente.
+</Warning>
+

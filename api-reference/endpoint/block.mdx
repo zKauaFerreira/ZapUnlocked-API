@@ -1,0 +1,41 @@
+---
+title: 'Bloquear Contato'
+icon: 'user-lock'
+api: 'POST https://{railway_domain}/settings/block'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Bloqueie ou desbloqueie um contato no WhatsApp.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Body
+
+<ParamField body="number" type="string" required>
+  O número do contato (ex: `5511999999999`).
+</ParamField>
+
+<ParamField body="block" type="boolean" required>
+  `true` para bloquear, `false` para desbloquear.
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indica se a operação foi realizada com sucesso.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Mensagem de confirmação (ex: "Contato 5511... bloqueado com sucesso").
+</ResponseField>

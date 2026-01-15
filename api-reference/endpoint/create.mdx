@@ -10,6 +10,21 @@ import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
 
 Envia uma mensagem de texto simples para um número específico do WhatsApp.
 
+### Placeholders Dinâmicos
+
+Você pode usar variáveis no texto da mensagem que serão substituídas automaticamente:
+
+| Placeholder | Descrição |
+| :--- | :--- |
+| `{{day}}` | Dia atual (ex: 25) |
+| `{{mon}}` | Mês atual (ex: 12) |
+| `{{yea}}` | Ano atual (ex: 2024) |
+| `{{hou}}` | Hora atual (ex: 14) |
+| `{{min}}` | Minuto atual (ex: 30) |
+| `{{sec}}` | Segundo atual (ex: 45) |
+| `{{phone}}` | Número do telefone do destinatário |
+| `{{name}}` | *Nome do contato (se disponível na agenda)* |
+
 ### Corpo da Requisição (Body)
 
 <ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
@@ -27,6 +42,20 @@ Envia uma mensagem de texto simples para um número específico do WhatsApp.
 <ParamField body="message" type="string" required>
   O conteúdo em texto da mensagem.
 </ParamField>
+
+<ParamField body="reply" type="string">
+  Responde a uma mensagem específica. Pode ser o **ID da mensagem** ou o **texto exato** da mensagem (dependendo do parâmetro `type`).
+</ParamField>
+
+<ParamField body="type" type="string" default="id">
+  Define como o parâmetro `reply` será interpretado:
+  - `id`: Busca a mensagem pelo ID único do WhatsApp
+  - `text`: Busca a mensagem mais recente com o texto exato fornecido (case-insensitive, normalizado)
+</ParamField>
+
+<Note>
+  **Modo Text**: Quando `type: "text"`, a API busca no histórico local (últimas 100 mensagens) a mensagem mais recente que contenha exatamente o texto fornecido em `reply`. Útil quando você não tem o ID da mensagem.
+</Note>
 
 ### Resposta
 

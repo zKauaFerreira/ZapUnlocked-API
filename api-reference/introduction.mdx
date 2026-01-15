@@ -12,6 +12,11 @@ import { UrlInput } from '/snippets/UrlInput.mdx';
 ## <Icon icon="eye" iconType="sharp-regular" color="#9d4fe6" size={22} /> Visão Geral
 
 A **ZapUnlocked-API** é uma solução REST de alta performance projetada para transformar o WhatsApp em uma poderosa ferramenta de automação. Ela utiliza JSON no corpo das requisições e retorna códigos de status HTTP padrão para indicar o sucesso ou falha das operações.
+- **Gerenciamento de Contatos:** Verificação de números, obtenção de foto de perfil e status.
+- **Privacidade e Configurações:** Controle de "visto por último", foto de perfil, bloqueio de contatos e atualização do perfil do bot.
+- **Autenticação Flexível:** Login via QR Code (imagem/HTML) ou Código de Pareamento (Pairing Code).
+- **Webhooks Globais:** Recebimento de todas as mensagens em uma URL externa.
+- **Formatação Dinâmica:** Placeholders para data, hora e nome do contato nas mensagens.
 
 ### <Icon icon="microchip" iconType="sharp-regular" color="#9d4fe6" size={22} /> Arquitetura e Motor
 
@@ -42,7 +47,7 @@ Defina a URL do seu projeto abaixo para que todos os exemplos de código sejam a
 
 <UrlInput />
 
-Se você estiver hospedando na Railway, sua URL base será semelhante a esta:
+Se você estiver hospedando na Railway, sua URL base será semelhante ou esta:
 
 ```bash
 https://seu-projeto.up.railway.app
@@ -70,8 +75,29 @@ Todos os endpoints da API (exceto a rota de status raiz e o acesso à página do
 </AccordionGroup>
 
 <Warning>
-  Nunca compartilhe sua chave de API. Ela fornece acesso total à conta do WhatsApp conectada.
+  **CRÍTICO:** Nunca compartilhe ou exponha sua `API_KEY` em ambientes client-side (como no navegador ou aplicativos móveis). O vazamento desta chave permite que qualquer pessoa tenha controle total sobre seu WhatsApp conectado.
 </Warning>
+
+### <Icon icon="shield-halved" iconType="sharp-regular" color="#9d4fe6" size={22} /> Boas Práticas de Segurança
+
+A **ZapUnlocked-API** utiliza autenticação via `x-api-key` como camada mínima de segurança. Para aplicações web, **recomenda-se fortemente** que as requisições sejam feitas a partir de um backend ou camada server-side, atuando como um "Proxy Seguro".
+
+#### <Icon icon="diagram-project" iconType="sharp-regular" color="#9d4fe6" size={22} /> Fluxo de Integração Seguro (Exemplo conceitual)
+
+Imagine que você quer criar um botão "Limpar Histórico" no seu painel administrativo:
+
+1. **Interface (Frontend):** O usuário clica no botão "Limpar Histórico".
+2. **Camada Intermediária (Backend/Serverless):** Seu frontend chama uma rota do seu próprio servidor (ex: `/api/cleanup-proxy`).
+3. **Servidor Seguro:** Seu servidor Next.js ou Node.js (onde a chave está escondida em variáveis de ambiente) faz a chamada real para a API:
+   ```bash
+   DELETE https://seu-projeto.up.railway.app/management/cleanup
+   x-api-key: SUA_CHAVE_SECRETA
+   ```
+4. **Resultado:**
+   - <Icon icon="square-check" color="#9d4fe6" size={16} /> **Seguro:** A chave nunca sai do seu servidor.
+   - <Icon icon="square-check" color="#9d4fe6" size={16} /> **Simples:** O frontend só conhece a sua API interna.
+   - <Icon icon="square-check" color="#9d4fe6" size={16} /> **Protegido:** Mesmo que alguém inspecione o navegador, a `API_KEY` original não será exposta.
+
 
 ## <Icon icon="file-code" iconType="sharp-regular" color="#9d4fe6" size={22} /> Formato de Resposta
 

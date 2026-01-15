@@ -1,14 +1,14 @@
 ---
-title: "Escanear QR"
-icon: "qrcode"
-api: "GET https://{railway_domain}/qr"
+title: 'Remover Config'
+icon: 'trash'
+api: 'DELETE https://{railway_domain}/webhook'
 ---
 
 import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
 
 <ApiKeySync />
 
-Acessa a interface visual para escanear o QR Code no navegador.
+Desativa o Webhook Global e remove permanentemente o arquivo de configuração do servidor.
 
 ### Autenticação
 
@@ -20,23 +20,12 @@ Acessa a interface visual para escanear o QR Code no navegador.
   Chave de autenticação da API.
 </ParamField>
 
-### Resposta
+### Response
 
-<ResponseExample>
+<ResponseField name="success" type="boolean">
+  Indica sucesso.
+</ResponseField>
 
-```html 200 Sucesso
-<!DOCTYPE html>
-<html>
-  <!-- Retorna a página HTML do QR Code -->
-</html>
-```
-
-
-```json 401 Erro
-{
-  "error": "Unauthorized",
-  "message": "API Key inválida ou ausente"
-}
-```
-
-</ResponseExample>
+<ResponseField name="message" type="string">
+  Confirmação da remoção.
+</ResponseField>

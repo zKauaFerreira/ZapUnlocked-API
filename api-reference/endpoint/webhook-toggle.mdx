@@ -1,0 +1,59 @@
+---
+title: 'Ativar/Desativar'
+icon: 'toggle-on'
+api: 'POST https://{railway_domain}/webhook/toggle'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Ativa ou desativa o envio de eventos para o Webhook Global sem perder a configuração salva.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Body
+
+<ParamField body="status" type="string" required>
+  O novo estado do webhook: `on` (ligado) ou `off` (desligado).
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indica se a alteração foi aplicada.
+</ResponseField>
+
+<ResponseField name="enabled" type="boolean">
+  `true` se ficou ativado, `false` se desativado.
+</ResponseField>
+
+<ResponseExample>
+
+```json 200 Sucesso
+{
+    "success": true,
+    "message": "Webhook off",
+    "config": {
+        "enabled": false,
+        "url": "https://seu-sistema.com/webhook",
+        "method": "POST",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "content": "📩 O número {{from}} enviou **{{text}}**"
+        }
+    }
+}
+```
+
+</ResponseExample>

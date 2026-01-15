@@ -336,4 +336,17 @@
         childList: true,
         subtree: true
     });
+    // Hide copy buttons on quickstart page
+    if (window.location.pathname.includes('/essentials/quickstart')) {
+        const style = document.createElement('style');
+        style.textContent = `
+      [data-testid="copy-code-button"] {
+        display: none !important;
+      }
+      [data-fade-overlay="true"] {
+        display: none !important;
+      }
+    `;
+        document.head.appendChild(style);
+    }
 })();

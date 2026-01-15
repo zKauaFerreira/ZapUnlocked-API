@@ -1,0 +1,100 @@
+---
+title: 'Configurar'
+icon: 'globe'
+api: 'POST https://{railway_domain}/webhook/config'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+O Webhook Global permite receber notificações de **todas as mensagens recebidas** pelo bot em uma URL externa. Este endpoint cria ou atualiza a configuração.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Body
+
+<ParamField body="url" type="string" required>
+  A URL HTTPS que receberá os eventos.
+</ParamField>
+
+<ParamField body="method" type="enum" default="POST">
+  Método HTTP a ser usado (`POST`, `GET`, `PUT`).
+</ParamField>
+
+<ParamField body="headers" type="object">
+  Headers personalizados para enviar na requisição (ex: Tokens de Auth).
+  Suporta placeholders.
+</ParamField>
+
+<ParamField body="body" type="object">
+  O JSON que será enviado para sua URL.
+  Suporta placeholders para interpolar dados da mensagem.
+</ParamField>
+
+<ParamField body="enabled" type="boolean" default="true">
+  Se o webhook deve começar ativado.
+</ParamField>
+
+### Placeholders
+
+Você pode usar as seguintes variáveis no seu `body` ou `headers`. O sistema irá substituí-las pelos dados reais da mensagem recebida:
+
+| Placeholder | Descrição |
+| :--- | :--- |
+| `{{from}}` | Número de quem enviou (remetente) |
+| `{{name}}` | Nome do contato (se disponível) |
+| `{{text}}` | Conteúdo da mensagem de texto |
+| `{{phone}}` | Mesmo que `from` |
+| `{{id}}` | ID único da mensagem |
+| `{{timestamp}}` | Data e hora do recebimento |
+
+### Exemplo de Configuração
+
+Exemplo de body para configurar o webhook:
+
+```json
+{
+  "url": "https://meu-sistema.com/webhook",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer 123456"
+  },
+  "body": {
+    "event": "message",
+    "sender": "{{from}}",
+    "content": "{{text}}",
+    "received_at": "{{timestamp}}"
+  }
+}
+```
+
+<ResponseExample>
+
+```json 200 Sucesso
+{
+  "success": true,
+  "message": "Webhook configurado",
+  "config": {
+    "enabled": true,
+    "url": "https://seu-sistema.com/webhook",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "content": "📩 O número {{from}} enviou **{{text}}**"
+    }
+  }
+}
+```
+
+</ResponseExample>

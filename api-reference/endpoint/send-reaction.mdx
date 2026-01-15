@@ -1,0 +1,50 @@
+---
+title: 'Enviar Reação'
+icon: 'face-smile'
+api: 'POST https://{railway_domain}/send_reaction'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Reage a uma mensagem específica com um emoji.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Body
+
+<ParamField body="phone" type="string" required>
+  Número do contato.
+</ParamField>
+
+<ParamField body="reaction" type="string" required>
+  Texto exato da mensagem ou ID da mensagem para reagir.
+</ParamField>
+
+<ParamField body="emoji" type="string" required>
+  O emoji da reação (ex: "💖"). Envie string vazia para remover.
+</ParamField>
+
+<ParamField body="type" type="string" default="text">
+  `text` (busca por conteúdo) ou `id` (busca por ID da mensagem).
+</ParamField>
+
+<ResponseExample>
+
+```json 200 Sucesso
+{
+    "success": true,
+    "message": "Reação enviada ✅"
+}
+```
+
+</ResponseExample>

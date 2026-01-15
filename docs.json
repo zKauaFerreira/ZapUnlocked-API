@@ -18,12 +18,19 @@
         "tab": "Documentação",
         "groups": [
           {
-            "group": "Início",
+            "group": "Visão Geral",
             "pages": [
               "index",
               "essentials/features",
-              "api-reference/resource-management",
               "essentials/mission"
+            ]
+          },
+          {
+            "group": "Recursos Técnicos",
+            "pages": [
+              "api-reference/optimization",
+              "api-reference/railway-limits",
+              "api-reference/message-storage"
             ]
           },
           {
@@ -37,36 +44,64 @@
             "pages": [
               "api-reference/introduction"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Requisições",
+        "groups": [
           {
-            "group": "Endpoint Mensagens",
+            "group": "Envio",
             "pages": [
               "api-reference/endpoint/create",
-              "api-reference/endpoint/buttons"
-            ]
-          },
-          {
-            "group": "Endpoint Mídias",
-            "pages": [
-              "api-reference/endpoint/image",
-              "api-reference/endpoint/audio",
+              "api-reference/endpoint/send-reaction",
+              "api-reference/endpoint/buttons",
+              "api-reference/endpoint/send-sticker",
               "api-reference/endpoint/video",
-              "api-reference/endpoint/document"
+              "api-reference/endpoint/image",
+              "api-reference/endpoint/document",
+              "api-reference/endpoint/audio"
             ]
           },
           {
-            "group": "Endpoint Auth e Sessão",
+            "group": "Consultas",
             "pages": [
-              "api-reference/endpoint/get",
+              "api-reference/endpoint/contact-info",
+              "api-reference/endpoint/volume-stats",
+              "api-reference/endpoint/fetch-messages",
+              "api-reference/endpoint/recent-contacts",
+              "api-reference/endpoint/cleanup"
+            ]
+          },
+          {
+            "group": "Conexão",
+            "pages": [
+              "api-reference/endpoint/status",
               "api-reference/endpoint/qr",
               "api-reference/endpoint/qr-image",
+              "api-reference/endpoint/pair",
               "api-reference/endpoint/delete"
             ]
           },
           {
-            "group": "Eventos e Webhooks",
+            "group": "Webhooks",
             "pages": [
-              "api-reference/endpoint/webhook"
+              "api-reference/endpoint/webhook-config",
+              "api-reference/endpoint/webhook-toggle",
+              "api-reference/endpoint/webhook-delete"
+            ]
+          },
+          {
+            "group": "Privacidade",
+            "pages": [
+              "api-reference/endpoint/privacy"
+            ]
+          },
+          {
+            "group": "Perfil",
+            "pages": [
+              "api-reference/endpoint/block",
+              "api-reference/endpoint/profile"
             ]
           }
         ]
@@ -78,6 +113,11 @@
           "anchor": "GitHub",
           "href": "https://github.com/zKauaFerreira/ZapUnlocked-API",
           "icon": "github"
+        },
+        {
+          "anchor": "Suporte",
+          "href": "https://github.com/zKauaFerreira/ZapUnlocked-API/issues",
+          "icon": "circle-question"
         }
       ]
     }
@@ -102,7 +142,9 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/zKauaFerreira/ZapUnlocked-API"
+      "github": "https://github.com/zKauaFerreira/ZapUnlocked-API",
+      "instagram": "https://instagram.com/kauafpss_",
+      "website": "mailto:kauaff3@gmail.com"
     }
   },
   "appearance": {

@@ -1,0 +1,48 @@
+---
+title: 'Uso do Disco'
+icon: 'hard-drive'
+api: 'GET https://{railway_domain}/management/volume_stats'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Retorna o espaço ocupado pelo armazenamento de mídias e dados do WhatsApp no servidor.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+<ResponseExample>
+
+```json 200 Sucesso
+{
+    "success": true,
+    "totalSizeBytes": 1048576,
+    "totalSizeFormatted": "1.00 MB",
+    "fileCount": 15,
+    "structure": [
+        {
+            "name": "chats",
+            "type": "folder",
+            "size": 1048576,
+            "children": [
+                 {
+                    "name": "5511999999999.json.gz",
+                    "type": "file",
+                    "size": 524288
+                }
+            ]
+        }
+    ]
+}
+```
+
+</ResponseExample>

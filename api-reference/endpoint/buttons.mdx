@@ -1,5 +1,5 @@
 ---
-title: "Botões Interativos"
+title: "Enviar Botão"
 icon: "square-check"
 api: "POST https://{railway_domain}/send_wbuttons"
 ---
@@ -8,10 +8,36 @@ import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
 
 <ApiKeySync />
 
-Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma abreviação para **Send With Buttons** (_Enviar com Botão_). Este sistema é **totalmente stateless**: as instruções do que acontece no clique estão embutidas no ID do botão de forma criptografada.
+Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma abreviação para **Send With Buttons** (_Enviar com Botão_).
+
+## Como Funciona (Stateless)
+
+Os botões no **ZapUnlocked-API** são **totalmente stateless** (sem estado). Isso significa que as instruções de para onde enviar os dados e o que enviar estão embutidas no próprio botão de forma criptografada.
+
+<Tip>
+  **Vantagem**: Você não precisa de um banco de dados local para "lembrar" o que um botão deve fazer. O bot descriptografa as instruções no momento do clique.
+</Tip>
+
+### Fluxo de Execução
+1. Você envia o botão com a config de `webhook`.
+2. A API gera um token criptografado e coloca no ID do botão.
+3. Quando o usuário clica, o bot:
+    - Recebe o clique.
+    - Descriptografa as instruções.
+    - Substitui os Placeholders (ex: `{{from}}`).
+    - Dispara o POST para sua URL.
+
+### Placeholders Disponíveis
+Você pode usar variáveis no seu `body` ou `headers` do webhook que serão substituídas no momento do clique:
+
+| Placeholder | Descrição |
+| :--- | :--- |
+| `{{from}}` | Número de quem clicou |
+| `{{text}}` | Texto do botão clicado |
+| `{{timestamp}}` | Data e hora do clique |
 
 <Note>
-  **Validade do Botão**: Por segurança e para evitar tokens excessivamente longos, os botões gerados têm uma validade de **24 horas**. Após esse período, o clique não disparará mais o webhook (isso será alterado no futuro).
+  **Validade**: Por segurança, os botões gerados têm validade de **24 horas**. Após esse período, o clique não disparará mais o webhook.
 </Note>
 
 ### Corpo da Requisição (Body)
@@ -34,6 +60,16 @@ Envia uma mensagem com um botão interativo. O endpoint `send_wbuttons` é uma a
 
 <ParamField body="button_text" type="string" required>
   O texto dentro do botão.
+</ParamField>
+
+<ParamField body="reply" type="string">
+  Responde a uma mensagem específica. Pode ser o **ID da mensagem** ou o **texto exato** da mensagem (dependendo do parâmetro `type`).
+</ParamField>
+
+<ParamField body="type" type="string" default="id">
+  Define como o parâmetro `reply` será interpretado:
+  - `id`: Busca a mensagem pelo ID único do WhatsApp
+  - `text`: Busca a mensagem mais recente com o texto exato fornecido (case-insensitive, normalizado)
 </ParamField>
 
 <ParamField body="reaction" type="string">

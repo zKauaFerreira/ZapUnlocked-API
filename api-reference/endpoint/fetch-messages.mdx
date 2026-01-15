@@ -1,0 +1,85 @@
+---
+title: 'Buscar Histórico'
+icon: 'message-captions'
+api: 'POST https://{railway_domain}/management/fetch_messages'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Busca mensagens salvas no disco (JSON GZIP) com filtros avançados.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Body
+
+<ParamField body="phone" type="string" required>
+  Número do telefone para buscar o histórico (ex: `5511999999999`).
+</ParamField>
+
+<ParamField body="limit" type="integer" default="50">
+  Quantidade máxima de mensagens a retornar.
+</ParamField>
+
+<ParamField body="type" type="string" default="all">
+  Tipo de mensagem: `sent` (enviadas), `received` (recebidas) ou `all` (todas).
+</ParamField>
+
+<ParamField body="query" type="string">
+  Texto para buscar dentro das mensagens (filtro por conteúdo).
+</ParamField>
+
+<ParamField body="onlyReactions" type="boolean" default="false">
+  Se `true`, retorna apenas mensagens que receberam reações.
+</ParamField>
+
+<ParamField body="reactionEmoji" type="string">
+  Filtra mensagens reagidas com um emoji específico (ex: "👍").
+</ParamField>
+
+<ResponseExample>
+
+```json 200 Sucesso
+{
+  "success": true,
+  "phone": "5511999999999",
+  "requested": 10,
+  "found": 10,
+  "total_found": 10,
+  "messages": [
+    {
+      "id": "MSG_ID_12345",
+      "fromMe": false,
+      "pushName": "Contato",
+      "text": "Olá!",
+      "timestamp": 1768428588,
+      "mimetype": null,
+      "type": "conversation",
+      "hasButtons": false,
+      "reaction": null
+    },
+    {
+      "id": "MSG_ID_67890",
+      "fromMe": true,
+      "pushName": null,
+      "text": "Como posso ajudar?",
+      "timestamp": 1768428528,
+      "mimetype": null,
+      "type": "extendedTextMessage",
+      "hasButtons": false,
+      "reaction": "👍"
+    }
+  ]
+}
+```
+
+</ResponseExample>

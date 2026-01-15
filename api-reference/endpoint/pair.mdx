@@ -1,0 +1,37 @@
+---
+title: 'Cód. Pareamento'
+icon: 'mobile'
+api: 'POST https://{railway_domain}/qr/pair'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Gera um código de 8 dígitos para conectar ao WhatsApp sem precisar escanear QR Code (útil para emuladores ou quando a câmera não funciona).
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Body
+
+<ParamField body="phone" type="string" required>
+  O número de telefone que será conectado, incluindo código do país (ex: `5511999999999`).
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indica se o código foi gerado.
+</ResponseField>
+
+<ResponseField name="code" type="string">
+  O código de pareamento (ex: `ABC1-2345`). Digite este código no seu WhatsApp celular.
+</ResponseField>

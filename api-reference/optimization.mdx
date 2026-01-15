@@ -1,0 +1,67 @@
+---
+title: "Otimização do Sistema"
+icon: "gauge-high"
+description: "Entenda como a **ZapUnlocked-API** é otimizada para máxima eficiência."
+---
+
+A **ZapUnlocked-API** foi projetada para rodar em ambientes de alta restrição, como o plano gratuito da **Railway**. Cada componente foi otimizado para garantir estabilidade e performance.
+
+---
+
+## <Icon icon="layer-group" iconType="sharp-regular" color="#9d4fe6" size={22} /> Fila de Mídias (Download Queue)
+
+Para evitar que múltiplos envios simultâneos estourem os limites de recursos, implementamos um sistema de **Fila Inteligente**:
+
+1. **Recebimento**: A API recebe múltiplas requisições de envio de mídia.
+2. **Fila**: Em vez de baixar todas ao mesmo tempo, elas entram em uma fila de espera.
+3. **Processamento Unitário**: O sistema processa um arquivo por vez (ou em pequenos lotes seguros).
+4. **Limpeza**: Assim que o arquivo é enviado ao WhatsApp, ele é deletado do servidor e o espaço é liberado para o próximo item da fila.
+
+<Info>
+  Este sistema garante que você possa enviar arquivos de até **2GB** (via protocolo) mesmo com recursos limitados no servidor.
+</Info>
+
+---
+
+## <Icon icon="file-zipper" iconType="sharp-regular" color="#9d4fe6" size={22} /> Compressão de Dados
+
+Para economizar espaço em disco, todos os **históricos de mensagens** e **índices de contatos** são armazenados em formato **JSON compactado (gzip)**.
+
+### Como Funciona
+1. **Armazenamento**: Quando uma mensagem é salva, o JSON é compactado antes de ser gravado no disco.
+2. **Leitura**: Ao buscar mensagens, o arquivo é descompactado em memória, processado e retornado.
+3. **Economia**: A compressão reduz o tamanho dos arquivos em até **70%**, permitindo armazenar mais dados no mesmo espaço.
+
+<Tip>
+  Para mais detalhes sobre limites de armazenamento e cálculos de consumo, veja a página de [Gerenciamento de Mensagens](/api-reference/message-storage).
+</Tip>
+
+---
+
+## <Icon icon="gauge-high" iconType="sharp-regular" color="#9d4fe6" size={22} /> Performance da Compressão
+
+### A compressão não deixa as requisições lentas?
+
+**Não.** Mesmo com o processo de descompactar → processar → compactar novamente, as requisições permanecem rápidas.
+
+**Latências reais medidas** (servidor na Virgínia/EUA, cliente no Brasil com ~160ms de ping):
+
+| Endpoint | Tempo de Resposta |
+| :--- | :--- |
+| `GET /management/volume_stats` | ~1.082 segundos |
+| `POST /management/fetch_messages` | ~956 ms |
+| `POST /management/recent_contacts` | ~959 ms |
+
+<Info>
+  A maior parte do tempo é consumida pela latência de rede (ping), não pela compressão. O overhead de gzip é mínimo e compensado pela economia de espaço.
+</Info>
+
+---
+
+## <Icon icon="sparkles" iconType="sharp-regular" color="#9d4fe6" size={22} /> Otimização Nativa
+
+A **ZapUnlocked-API** foi meticulosamente construída para que você **não precise se preocupar com otimização**. 
+
+Diferente de outras soluções que exigem configurações complexas ou upgrades de hardware para manter a estabilidade, cada detalhe aqui — desde a gestão de memória até a fila de processos — já vem ajustado de fábrica.
+
+Você tem em mãos um motor que extrai 100% de performance dos recursos disponíveis, permitindo que você foque no que realmente importa: **sua lógica de negócio.**

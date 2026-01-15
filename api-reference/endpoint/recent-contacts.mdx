@@ -1,0 +1,53 @@
+---
+title: 'Contatos Recentes'
+icon: 'users'
+api: 'POST https://{railway_domain}/management/recent_contacts'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Lista os contatos com quem o bot interagiu recentemente.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Body
+
+<ParamField body="limit" type="integer" default="100">
+  Quantidade de contatos para retornar.
+</ParamField>
+
+<ResponseExample>
+
+```json 200 Sucesso
+{
+  "success": true,
+  "requested": 10,
+  "found": 2,
+  "chats": [
+    {
+      "id": "5511999999999@s.whatsapp.net",
+      "phone": "5511999999999",
+      "name": "João Silva",
+      "lastMessageTimestamp": 1768428588
+    },
+    {
+      "id": "5511888888888@s.whatsapp.net",
+      "phone": "5511888888888",
+      "name": null,
+      "lastMessageTimestamp": 1768426246
+    }
+  ]
+}
+```
+
+</ResponseExample>

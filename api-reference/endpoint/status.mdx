@@ -1,0 +1,50 @@
+---
+title: 'Verificar Status'
+icon: 'circle-check'
+api: 'GET https://{railway_domain}/status'
+---
+
+import { ApiKeySync } from '/snippets/ApiKeySync.mdx';
+
+<ApiKeySync />
+
+Verifica o status da conexão do WhatsApp e retorna informações sobre a sessão atual.
+
+### Autenticação
+
+<ParamField path="railway_domain" type="string" required placeholder="seu-projeto.up.railway.app">
+  URL do seu projeto na Railway (sem https:// e sem a barra final).
+</ParamField>
+
+<ParamField header="x-api-key" type="string" required placeholder="SUA_SENHA_SECRETA">
+  Chave de autenticação da API.
+</ParamField>
+
+### Resposta
+
+<ResponseExample>
+
+```json 200 Conectado
+{
+  "status": "connected",
+  "qr": null,
+  "message": "WhatsApp conectado"
+}
+```
+
+```json 200 Aguardando QR
+{
+  "status": "qr_ready",
+  "qr": "data:image/png;base64,iVBORw0KGgoAAAANS...",
+  "message": "QR Code disponível"
+}
+```
+
+```json 503 Desconectado
+{
+  "status": "disconnected",
+  "message": "WhatsApp não conectado"
+}
+```
+
+</ResponseExample>

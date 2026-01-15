@@ -7,7 +7,7 @@ description: "Explore o universo de possibilidades da **ZapUnlocked-API**."
 A **ZapUnlocked-API** é uma engine de automação robusta construída sobre o motor Baileys, projetada para ser estável e poderosa.
 
 <Info>
-  **Eficiência de Recursos**: O sistema é otimizado para rodar com **500MB de RAM**, utilizando uma estratégia de alocação inteligente detalhada na nossa página de [Gestão de Recursos](/api-reference/resource-management).
+  **Eficiência de Recursos**: O sistema é otimizado para rodar com **120-140 MB de RAM**, utilizando compressão inteligente e fila de mídias. Saiba mais em [Otimização do Sistema](/api-reference/optimization) e [Limites da Railway](/api-reference/railway-limits).
 </Info>
 
 ---
@@ -16,11 +16,35 @@ A **ZapUnlocked-API** é uma engine de automação robusta construída sobre o m
 
 Ferramentas prontas para automação:
 
-- **Mensageria**: Envio de Texto, Citações e Reações.
-- **Mídia**: Imagens, Vídeos (GIF/PTV), Áudios (PTT nativo) e Documentos.
-- **Fila de Mídias**: Gerenciamento de queue para evitar estouro de memória em envios simultâneos.
-- **Botões Interativos**: Sistema stateless com ID criptografado e validade de 24h.
-- **Webhooks**: Callbacks em tempo real com suporte a placeholders dinâmicos.
+### Mensageria
+- **Texto**: Envio de mensagens com placeholders dinâmicos (`{{day}}`, `{{phone}}`, etc.)
+- **Reações**: Reagir a mensagens com emojis
+- **Botões Interativos**: Sistema stateless com webhooks criptografados (validade 24h)
+- **Figurinhas**: Envio de stickers com controle de redimensionamento (pad, cover, stretch, blur, transparent)
+
+### Mídia
+- **Imagens, Vídeos, Áudios e Documentos**: Suporte completo com fila inteligente
+- **Áudio PTT**: Conversão automática para compatibilidade com iPhone
+- **Fila de Mídias**: Gerenciamento de queue para evitar estouro de recursos
+
+### Webhooks
+- **Global**: Receba todas as mensagens em uma URL externa com placeholders
+- **Botões**: Callbacks em tempo real com suporte a placeholders dinâmicos
+
+### Gerenciamento
+- **Contatos**: Buscar informações de contatos e listar recentes (últimos 1.000)
+- **Mensagens**: Buscar histórico com filtros (tipo, query, reação) - 100 msgs/chat
+- **Armazenamento**: Verificar uso de disco e limpar JSONs compactados
+
+### Conexão
+- **QR Code**: Interface web com auto-refresh
+- **Pairing Code**: Login via código numérico (alternativa ao QR)
+- **Logout**: Desconectar e resetar sessão
+
+### Configurações
+- **Privacidade**: Ajustar visibilidade de Visto por Último, Foto e Status
+- **Bloqueio**: Bloquear/desbloquear contatos
+- **Perfil**: Atualizar nome e foto do bot
 
 ---
 
